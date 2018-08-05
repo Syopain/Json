@@ -24,15 +24,15 @@ namespace pain{
 
 	class Json{
 	public:
-		Json parse(const std::string &content) noexcept;
+		void parse(const std::string &content) noexcept;
 
-		Json() = default;
-//		Json(const Json &src);
+		Json();
+		Json(const Json &src);
 
 		int get_type() const noexcept;
 		int set_type(json::type t) noexcept;
 	private:
-		std::shared_ptr<json::Value> v;
+		std::unique_ptr<json::Value> v;
 //		json::Value *v;
 	};
 
