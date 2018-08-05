@@ -32,8 +32,7 @@ namespace pain{
 		int get_type() const noexcept;
 		int set_type(json::type t) noexcept;
 	private:
-		std::unique_ptr<json::Value> v;
-//		json::Value *v;
+		std::shared_ptr<json::Value> v;
 	};
 
 }
