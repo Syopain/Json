@@ -9,7 +9,7 @@ namespace pain {
 	}
 
 	Json::Json() : v(new json::Value) { }
-
+	Json::~Json() {}
 	Json::Json(const Json &src)
 	{
 		v.reset(new json::Value(*(src.v)));
