@@ -3,14 +3,19 @@
 
 namespace pain 
 
-	Json::parse(const string &content) noexcept
+	Json Json::parse(const string &content) noexcept
 	{
+		
+	}
 
+	Json(Json &src)
+	{
+		value.reset(new json::value(*src-> v));
 	}
 
 	int Json::type() const noexcept
 	{
-		return value->get_type();
+		return v-> get_type();
 	}
 
 }

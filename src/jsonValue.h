@@ -3,14 +3,16 @@
 
 #include "json.h"
 
-namespace pain{
+namespace json{
 
-	class JsonValue{
+	class value{
 	public:
 		int get_type() const noexcept;
+		void parse(const std::string &content) noexcept;
 	private:
-		json_type type;
+
+		json::type type_;
 	}
 }
-#include "jsonValue.hpp"
+
 #endif
