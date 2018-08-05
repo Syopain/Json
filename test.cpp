@@ -1,6 +1,6 @@
 #include <iostream>
-#include "json.h"
-
+#include "src/json.h"
+//#include "src/jsonValue.h"
 static int main_ret = 0;
 static int test_count = 0;
 static int test_pass = 0;
@@ -17,20 +17,20 @@ inline void expect_eq_base(bool equality, T expect, T actual)
 	}
 }
 
-inline int expect_eq_int(int expect, int actual)
+inline void expect_eq_int(int expect, int actual)
 {
-	return expect_eq_base(expect == actual, expect, actual);
+	expect_eq_base(expect == actual, expect, actual);
 }
 
 static void test_parse_null()
 {
-	json v;
-	v.type = JSON_TRUE;
-	expect_eq_int(PARSE_OK, v.parse("null"));
-	expect_eq_int(JSON_NULL, v.type());
+	pain::Json v;
+	v.set_type(json::JSON_TRUE);
+	v.parse("null");
+	expect_eq_int(json::JSON_NULL, v.get_type());
 }
 
-static void test_pares() {
+static void test_parse() {
 	test_parse_null();
 }
 

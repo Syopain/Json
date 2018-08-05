@@ -4,35 +4,36 @@
 #include <memory>
 #include <string>
 
-namespace json{
+namespace json {
 
 	enum type : int{
-		NULL,
-		TRUE,
-		FALSE,
-		NUMBER,
-		STRING,
-		ARRAY,
-		OBJECT
+		JSON_NULL,
+		JSON_TRUE,
+		JSON_FALSE,
+		JSON_NUMBER,
+		JSON_STRING,
+		JSON_ARRAY,
+		JSON_OBJECT
 	};
+
+	class Value;
 
 }
 
 namespace pain{
-
-	class json::value;
 
 	class Json{
 	public:
 		Json parse(const std::string &content) noexcept;
 
 		Json() = default;
-		Json(const Json &src);
-		Json& operator=(const Json &rhs);
+//		Json(const Json &src);
 
-		int type() const noexcept;
+		int get_type() const noexcept;
+		int set_type(json::type t) noexcept;
 	private:
-		unique_ptr<json::value> v;
+		std::shared_ptr<json::Value> v;
+//		json::Value *v;
 	};
 
 }

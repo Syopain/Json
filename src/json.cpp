@@ -1,21 +1,25 @@
 #include "json.h"
 #include "jsonValue.h"
 
-namespace pain 
+namespace pain {
 
-	Json Json::parse(const string &content) noexcept
+	Json Json::parse(const std::string &content) noexcept
 	{
-		
+		v->parse(content);
 	}
 
-	Json(Json &src)
+/*	Json::Json(const Json &src)
 	{
-		value.reset(new json::value(*src-> v));
+		v.reset(new json::Value(*(src.v)));
 	}
-
-	int Json::type() const noexcept
+*/
+	int Json::get_type() const noexcept
 	{
 		return v-> get_type();
+	}
+	int Json::set_type(json::type t) noexcept
+	{
+		return v-> set_type(t);
 	}
 
 }

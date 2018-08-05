@@ -3,16 +3,17 @@
 
 #include "json.h"
 
-namespace json{
+namespace json {
 
-	class value{
+	class Value{
 	public:
 		int get_type() const noexcept;
+		int set_type(type t) noexcept;
 		void parse(const std::string &content) noexcept;
 	private:
 
 		json::type type_;
-	}
+	};
 }
 
 #endif

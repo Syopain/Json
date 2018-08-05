@@ -8,19 +8,15 @@ namespace json {
 	
 	class Parser{
 	public:
-		Parser(value &v, const std::string &c) : cur_(c.str()) { }
-		jsonValue parse();
+		Parser(Value &v, const std::string &content);
 		
 	private:
-		void parse_whitespace();
+		void parse_whitespace() noexcept;
 		void parse_null();
 		void parse_value();
 
-
-
-		char *cur;
-		jsonValue const *value
-
+		Value &val_;
+		const char *cur_;
 	};
 
 }

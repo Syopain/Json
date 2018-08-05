@@ -1,14 +1,19 @@
 #include "jsonValue.h"
+#include "jsonParser.h"
 
 namespace json {
 
-	int value::get_type() const noexcept
+	int Value::get_type() const noexcept
 	{
 		return type_;
 	}
-
-	void value::parse(const std::string &content) noexcept
+	int Value::set_type(type t) noexcept
 	{
+		return type_ = t;
+	}
 
+	void Value::parse(const std::string &content) noexcept
+	{
+		Parser(*this, content);
 	}
 }
