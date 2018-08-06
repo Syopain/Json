@@ -9,10 +9,11 @@ namespace json {
 	public:
 		int get_type() const noexcept;
 		int set_type(type t) noexcept;
-		void parse(const std::string &content) noexcept;
+		void parse(const std::string &content);
+
 	private:
 
-		json::type type_;
+		json::type type_ = Null;
 	};
 }
 

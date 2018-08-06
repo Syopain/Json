@@ -13,6 +13,8 @@ namespace json {
 	private:
 		void parse_whitespace() noexcept;
 		void parse_null();
+		void parse_true();
+		void parse_false();
 		void parse_value();
 
 		Value &val_;

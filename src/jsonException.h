@@ -6,7 +6,7 @@
 
 namespace json{
 
-	class Exception : std::logic_error{
+	class Exception : public std::logic_error{
 	public:
 		Exception(const std::string &errMsg) : logic_error(errMsg) { }
 	};

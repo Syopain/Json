@@ -7,13 +7,13 @@
 namespace json {
 
 	enum type : int{
-		JSON_NULL,
-		JSON_TRUE,
-		JSON_FALSE,
-		JSON_NUMBER,
-		JSON_STRING,
-		JSON_ARRAY,
-		JSON_OBJECT
+		Null,
+		True,
+		False,
+		Number,
+		String,
+		Array,
+		Object
 	};
 
 	class Value;
@@ -24,7 +24,8 @@ namespace pain{
 
 	class Json{
 	public:
-		void parse(const std::string &content) noexcept;
+		void parse(const std::string &content, std::string &status) noexcept;
+		void parse(const std::string &content);
 
 		Json();
 		~Json();

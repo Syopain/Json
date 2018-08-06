@@ -12,7 +12,7 @@ namespace json {
 		return type_ = t;
 	}
 
-	void Value::parse(const std::string &content) noexcept
+	void Value::parse(const std::string &content)
 	{
 		Parser(*this, content);
 	}

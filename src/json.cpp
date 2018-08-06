@@ -1,9 +1,21 @@
 #include "json.h"
 #include "jsonValue.h"
+#include "jsonException.h"
 
 namespace pain {
 
-	void Json::parse(const std::string &content) noexcept
+	void Json::parse(const std::string &content, std::string &status) noexcept 
+	{
+		try{
+			parse(content);
+			status = "parse ok";
+		} catch (const json::Exception &msg) {
+			status = msg.what();
+		} catch (...) {
+		}
+	}
+
+	void Json::parse(const std::string &content)
 	{
 		v->parse(content);
 	}
