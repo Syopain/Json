@@ -42,34 +42,24 @@ static void test_parse_false()
 	EXPECT_EQ_BASE(json::False, v.get_type());
 }
 
+#define TEST_ERROR(error, content) \
+	do {\
+		pain::Json v;\
+		v.parse(content, status);\
+		EXPECT_EQ_BASE(error, status);\
+		EXPECT_EQ_BASE((json::Null), v.get_type());\
+	} while(0)
+
 static void test_parse_expect_value()
 {
-	pain::Json v;
-
-	v.set_type(json::False);
-	v.parse("", status);
-	EXPECT_EQ_BASE("parse expect value", status);
-	EXPECT_EQ_BASE(json::Null, v.get_type());
-
-	v.set_type(json::False);
-	v.parse(" ", status);
-	EXPECT_EQ_BASE("parse expect value", status);
-	EXPECT_EQ_BASE(json::Null, v.get_type());
+	TEST_ERROR("parse expect value", "");
+	TEST_ERROR("parse expect value", " ");
 }
 
 static void test_parse_invalid_value()
 {
-	pain::Json v;
-
-	v.set_type(json::False);
-	v.parse("nul", status);
-	EXPECT_EQ_BASE("parse invalid value", status);
-	EXPECT_EQ_BASE(json::Null, v.get_type());
-
-	v.set_type(json::False);
-	v.parse("?", status);
-	EXPECT_EQ_BASE("parse invalid value", status);
-	EXPECT_EQ_BASE(json::Null, v.get_type());
+	TEST_ERROR("parse invalid value", "nul");
+	TEST_ERROR("parse invalid value", "!?");
 }
 
 static void test_parse_root_not_singular()

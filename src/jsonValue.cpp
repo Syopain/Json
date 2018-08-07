@@ -11,6 +11,10 @@ namespace json {
 	{
 		return type_ = t;
 	}
+	double Value::get_number() const noexcept
+	{
+		return num_;
+	}
 
 	void Value::parse(const std::string &content)
 	{

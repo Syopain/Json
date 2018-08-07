@@ -7,13 +7,15 @@ namespace json {
 
 	class Value{
 	public:
+		void parse(const std::string &content);
 		int get_type() const noexcept;
 		int set_type(type t) noexcept;
-		void parse(const std::string &content);
+		double get_number() const noexcept;
 
 	private:
 
 		json::type type_ = Null;
+		double num_ = 0;
 	};
 }
 
