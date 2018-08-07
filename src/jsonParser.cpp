@@ -1,4 +1,8 @@
 #include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#include <math.h>
+#include <stdlib.h>
 #include "jsonException.h"
 #include "jsonParser.h"
 
@@ -13,22 +17,24 @@ namespace json {
 	Parser::Parser(Value &v, const std::string &content)
 		: val_(v), cur_(content.c_str())
 	{
-		v.set_type(Null);
+		v.set_type(json::Null);
 		parse_whitespace();
 		parse_value();
 		parse_whitespace();
-		if(*cur_ != '\0')
+		if(*cur_ != '\0'){
+			val_.set_type(json::Null);
 			throw(Exception("parse root not singular"));
+		}
 	}
 
 	void Parser::parse_value()
 	{
 		switch (*cur_) {
-			case 'n' : parse_null();  return;
-			case 't' : parse_true();  return;
-			case 'f' : parse_false(); return;
+			case 'n' : parse_literal("null", json::Null);  return;
+			case 't' : parse_literal("true", json::True);  return;
+			case 'f' : parse_literal("false", json::False); return;
+			default  : parse_number();return; 
 			case '\0': throw(Exception("parse expect value"));
-			default  : throw(Exception("parse invalid value")); 
 		}
 	}
 
@@ -38,33 +44,43 @@ namespace json {
 		++cur_;
 	}
 
-	void Parser::parse_null()
+	void Parser::parse_literal(const char *literal, json::type t)
 	{
-		expect(cur_, 'n');
-		if(cur_[0] != 'u' || cur_[1] != 'l' || cur_[2] != 'l')
-			throw (Exception("parse invalid value"));
-		cur_ += 3;
-		val_.set_type(json::Null);
-		return;
+		expect(cur_, literal[0]);
+		size_t i;
+		for(i = 0; literal[i+1]; ++i) {
+			if (cur_[i] != literal[i+1])
+				throw (Exception("parse invalid value"));
+		}
+		cur_ += i;
+		val_.set_type(t);
 	}
 
-	void Parser::parse_true()
+	void Parser::parse_number()
 	{
-		expect(cur_, 't');
-		if(cur_[0] != 'r' || cur_[1] != 'u' || cur_[2] != 'e')
-			throw (Exception("parse invalid value"));
-		cur_ += 3;
-		val_.set_type(json::True);
-		return;
-	}
-
-	void Parser::parse_false()
-	{
-		expect(cur_, 'f');
-		if(cur_[0] != 'a' || cur_[1] != 'l' || cur_[2] != 's' || cur_[3] != 'e')
-			throw (Exception("parse invalid value"));
-		cur_ += 4;
-		val_.set_type(json::False);
-		return;
+		const char *p = cur_;
+		if(*p == '-') ++p;
+		if(*p == '0') ++p;
+		else {
+			if(!isdigit(*p)) throw (Exception("parse invalid value"));
+			while(isdigit(*++p)) ;
+		}
+		if(*p == '.'){
+			if(!isdigit(*p)) throw (Exception("parse invalid value"));
+			while(isdigit(*++p)) ;
+		}
+		if(*p == 'e' || *p == 'E') {
+			++p;
+			if(*p == '+' || *p == '-') ++p;
+			if(!isdigit(*p)) throw (Exception("parse invalid value"));
+			while(isdigit(*++p)) ;
+		}
+		errno = 0;
+		double v = strtod(cur_, NULL);
+		if (errno == ERANGE && (v == HUGE_VAL || v == -HUGE_VAL))
+			throw (Exception("parse number too big"));
+		val_.set_type(json::Number);
+		val_.set_number(v);
+		cur_ = p;
 	}
 }

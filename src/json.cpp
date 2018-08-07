@@ -31,9 +31,17 @@ namespace pain {
 	{
 		return v-> get_type();
 	}
-	int Json::set_type(json::type t) noexcept
+	void Json::set_type(json::type t) noexcept
 	{
-		return v-> set_type(t);
+		v-> set_type(t);
+	}
+	double Json::get_number() const noexcept
+	{
+		return v-> get_number();
+	}
+	void Json::set_number(double d) noexcept
+	{
+		v-> set_number(d);
 	}
 
 }

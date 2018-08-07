@@ -9,14 +9,15 @@ namespace json {
 	public:
 		void parse(const std::string &content);
 		int get_type() const noexcept;
-		int set_type(type t) noexcept;
+		void set_type(type t) noexcept;
 		double get_number() const noexcept;
+		void set_number(double d) noexcept;
 
 	private:
 
-		json::type type_ = Null;
+		json::type type_ = json::Null;
 		double num_ = 0;
 	};
 }
 
-#endif
+#endif	//	JSONVALUE_H

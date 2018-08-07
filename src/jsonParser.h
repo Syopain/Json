@@ -12,10 +12,9 @@ namespace json {
 		
 	private:
 		void parse_whitespace() noexcept;
-		void parse_null();
-		void parse_true();
-		void parse_false();
 		void parse_value();
+		void parse_literal(const char *literal, json::type t);
+		void parse_number();
 
 		Value &val_;
 		const char *cur_;

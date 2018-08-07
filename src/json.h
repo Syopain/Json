@@ -32,10 +32,12 @@ namespace pain{
 		Json(const Json &src);
 
 		int get_type() const noexcept;
-		int set_type(json::type t) noexcept;
+		void set_type(json::type t) noexcept;
+		double get_number() const noexcept;
+		void set_number(double d) noexcept;
 	private:
 		std::unique_ptr<json::Value> v;
 	};
 
 }
-#endif
+#endif	//	JSON_H
