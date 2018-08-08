@@ -15,6 +15,7 @@ namespace json {
 		void parse_value();
 		void parse_literal(const char *literal, json::type t);
 		void parse_number();
+		void parse_string();
 
 		Value &val_;
 		const char *cur_;

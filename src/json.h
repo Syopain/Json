@@ -27,14 +27,17 @@ namespace pain{
 		void parse(const std::string &content, std::string &status) noexcept;
 		void parse(const std::string &content);
 
-		Json();
-		~Json();
-		Json(const Json &src);
+		Json() noexcept;
+		~Json() noexcept;
+		Json(const Json &rhs) noexcept;
+		Json& operator=(const Json &rhs) noexcept;
 
 		int get_type() const noexcept;
 		void set_type(json::type t) noexcept;
 		double get_number() const noexcept;
 		void set_number(double d) noexcept;
+		const std::string get_string() const noexcept;
+		void set_string(const std::string& str) noexcept;
 	private:
 		std::unique_ptr<json::Value> v;
 	};

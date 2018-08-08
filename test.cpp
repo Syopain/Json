@@ -65,6 +65,25 @@ static void test_parse_number()
     TEST_NUMBER(0.0, "1e-10000"); /* must underflow */
 }
 
+#define TEST_STRING(expect, content)\
+	do {\
+		pain::Json v;\
+		v.parse(content, status);\
+		EXPECT_EQ_BASE("parse ok", status);\
+		EXPECT_EQ_BASE(json::String, v.get_type());\
+		EXPECT_EQ_BASE(expect, v.get_string());\
+	} while(0)
+
+static void test_parse_string()
+{
+
+	TEST_STRING("", "\"ad\"");
+/*	TEST_STRING("Hello", "\"Hello\"");
+
+	TEST_STRING("Hello\nWorld", "\"Hello\\nWorld\"");
+	TEST_STRING("\" \\ / \b \f \n \r \t", "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"");*/
+}
+
 #define TEST_ERROR(error, content) \
 	do {\
 		pain::Json v;\
@@ -112,11 +131,13 @@ static void test_parse_number_too_big()
 }
 
 static void test_parse() {
-	test_parse_literal();
-	test_parse_expect_value();
+/*	test_parse_literal();
+	test_parse_number();*/
+	test_parse_string();
+/*	test_parse_expect_value();
 	test_parse_invalid_value();
 	test_parse_root_not_singular();
-	test_parse_number_too_big();
+	test_parse_number_too_big();*/
 }
 
 int main() {
