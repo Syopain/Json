@@ -24,7 +24,6 @@ namespace json {
 	private:
 		void init(const Value &rhs) noexcept; 
 		void free() noexcept;
-		
 
 		json::type type_ = json::Null;
 		union {

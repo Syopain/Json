@@ -117,6 +117,7 @@ static void test_parse_root_not_singular()
 {
 	TEST_ERROR("parse root not singular", "null x");
 	TEST_ERROR("parse root not singular", "truead");
+	TEST_ERROR("parse root not singular", "\"dsad\"d");
 	
 	TEST_ERROR("parse root not singular", "0123");
 	TEST_ERROR("parse root not singular", "0x0");
