@@ -98,7 +98,7 @@ namespace json {
 					case '\"': tmp += '\"'; break;
 					case '\\': tmp += '\\'; break;
 					case '/' : tmp += '/' ; break;
-					case 'b': tmp += '\b'; break;
+					case 'b' : tmp += '\b'; break;
 					case 'f' : tmp += '\f'; break;
 					case 'n' : tmp += '\n'; break;
 					case 'r' : tmp += '\r'; break;
@@ -111,7 +111,6 @@ namespace json {
 			} else tmp += *p++;
 		}
 		val_.set_string(tmp);
-		if(*++p == '\0')
-			cur_ = p;
+		cur_ = ++p;
 	}
 }

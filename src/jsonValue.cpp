@@ -7,17 +7,12 @@ namespace json {
 
 	Value& Value::operator=(const Value &rhs) noexcept
 	{
-		using std::string;
-		if (type_ == json::String)
-			str_.~string();
 		init(rhs);
 	}
 	
 	Value::~Value() noexcept
 	{
-		using std::string;
-		if(type_ == json::String)
-			str_.~string();
+		free();
 	}
 
 	void Value::init(const Value &rhs) noexcept
@@ -29,6 +24,12 @@ namespace json {
 			case json::String: str_ = rhs.str_;
 		}
 	}
+	void Value::free() noexcept
+	{
+		using std::string;
+		if (type_ == json::String)
+			str_.~string();
+	}
 
 	int Value::get_type() const noexcept
 	{
@@ -36,6 +37,7 @@ namespace json {
 	}
 	void Value::set_type(type t) noexcept
 	{
+		free();
 		type_ = t;
 	}
 	double Value::get_number() const noexcept
@@ -45,18 +47,23 @@ namespace json {
 	}
 	void Value::set_number(double d) noexcept
 	{
+		free();
 		type_ = json::Number;
 		num_ = d;
 	}
 	const std::string Value::get_string() const noexcept
 	{
 		assert(type_ == json::String);
-		return "";
+		return str_;
 	}
 	void Value::set_string(const std::string& str) noexcept
 	{
-		type_ = json::String;
-		str_ = str;
+		if (type_ == json::String)
+			str_ = str;
+		else {
+			type_ = json::String;
+			new(&str_) std::string(str);
+		}
 	}
 
 	void Value::parse(const std::string &content)
