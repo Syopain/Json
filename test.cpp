@@ -65,6 +65,25 @@ static void test_parse_number()
     TEST_NUMBER(0.0, "1e-10000"); /* must underflow */
 }
 
+#define TEST_STRING(expect, content)\
+	do {\
+		pain::Json v;\
+		v.parse(content, status);\
+		EXPECT_EQ_BASE("parse ok", status);\
+		EXPECT_EQ_BASE(json::String, v.get_type());\
+		EXPECT_EQ_BASE(expect, v.get_string());\
+	} while(0)
+
+static void test_parse_string()
+{
+
+	TEST_STRING("", "\"\"");
+	TEST_STRING("Hello", "\"Hello\"");
+
+	TEST_STRING("Hello\nWorld", "\"Hello\\nWorld\"");
+	TEST_STRING("\" \\ / \b \f \n \r \t", "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"");
+}
+
 #define TEST_ERROR(error, content) \
 	do {\
 		pain::Json v;\
@@ -98,6 +117,7 @@ static void test_parse_root_not_singular()
 {
 	TEST_ERROR("parse root not singular", "null x");
 	TEST_ERROR("parse root not singular", "truead");
+	TEST_ERROR("parse root not singular", "\"dsad\"d");
 	
 	TEST_ERROR("parse root not singular", "0123");
 	TEST_ERROR("parse root not singular", "0x0");
@@ -111,12 +131,38 @@ static void test_parse_number_too_big()
 	TEST_ERROR("parse number too big", "-1e309");
 }
 
+static void test_parse_missing_quotation_mark() {
+    TEST_ERROR("parse miss quotation mark", "\"");
+	TEST_ERROR("parse miss quotation mark", "\"abc");
+}
+
+static void test_parse_invalid_string_escape() {
+#if 1
+   TEST_ERROR("parse invalid string escape", "\"\\v\"");
+   TEST_ERROR("parse invalid string escape", "\"\\'\"");
+   TEST_ERROR("parse invalid string escape", "\"\\0\"");
+   TEST_ERROR("parse invalid string escape", "\"\\x12\"");
+#endif
+}
+
+static void test_parse_invalid_string_char() {
+#if 1
+    TEST_ERROR("parse invalid string char", "\"\x01\"");
+    TEST_ERROR("parse invalid string char", "\"\x1F\"");
+#endif
+}
+
 static void test_parse() {
 	test_parse_literal();
+	test_parse_number();
+	test_parse_string();
 	test_parse_expect_value();
 	test_parse_invalid_value();
 	test_parse_root_not_singular();
 	test_parse_number_too_big();
+    test_parse_missing_quotation_mark();
+	test_parse_invalid_string_escape();
+	test_parse_invalid_string_char();
 }
 
 int main() {

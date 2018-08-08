@@ -33,6 +33,7 @@ namespace json {
 			case 'n' : parse_literal("null", json::Null);  return;
 			case 't' : parse_literal("true", json::True);  return;
 			case 'f' : parse_literal("false", json::False); return;
+			case '\"': parse_string();return;
 			default  : parse_number();return; 
 			case '\0': throw(Exception("parse expect value"));
 		}
@@ -58,6 +59,7 @@ namespace json {
 
 	void Parser::parse_number()
 	{
+		
 		const char *p = cur_;
 		if(*p == '-') ++p;
 		if(*p == '0') ++p;
@@ -66,7 +68,7 @@ namespace json {
 			while(isdigit(*++p)) ;
 		}
 		if(*p == '.'){
-			if(!isdigit(*p)) throw (Exception("parse invalid value"));
+			if(!isdigit(*++p)) throw (Exception("parse invalid value"));
 			while(isdigit(*++p)) ;
 		}
 		if(*p == 'e' || *p == 'E') {
@@ -79,8 +81,36 @@ namespace json {
 		double v = strtod(cur_, NULL);
 		if (errno == ERANGE && (v == HUGE_VAL || v == -HUGE_VAL))
 			throw (Exception("parse number too big"));
-		val_.set_type(json::Number);
 		val_.set_number(v);
 		cur_ = p;
+	}
+
+	void Parser::parse_string()
+	{
+		expect(cur_, '\"');
+		const char *p = cur_;
+		std::string tmp;
+		while (*p != '\"') {
+			if(*p == '\0')
+				throw(Exception("parse miss quotation mark"));
+			if(*p == '\\' && ++p){
+				switch(*p++){
+					case '\"': tmp += '\"'; break;
+					case '\\': tmp += '\\'; break;
+					case '/' : tmp += '/' ; break;
+					case 'b' : tmp += '\b'; break;
+					case 'f' : tmp += '\f'; break;
+					case 'n' : tmp += '\n'; break;
+					case 'r' : tmp += '\r'; break;
+					case 't' : tmp += '\t'; break;
+					default	 : throw (Exception("parse invalid string escape"));
+				}
+			}
+			else if ((unsigned char) *p < 0x20) {
+				throw (Exception("parse invalid string char"));
+			} else tmp += *p++;
+		}
+		val_.set_string(tmp);
+		cur_ = ++p;
 	}
 }

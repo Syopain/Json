@@ -1,6 +1,7 @@
 #ifndef JSONVALUE_H
 #define JSONVALUE_H
 
+#include <string>
 #include "json.h"
 
 namespace json {
@@ -12,11 +13,23 @@ namespace json {
 		void set_type(type t) noexcept;
 		double get_number() const noexcept;
 		void set_number(double d) noexcept;
+		const std::string get_string() const noexcept;
+		void set_string(const std::string& str) noexcept;
+
+		Value() noexcept { num_ = 0; }
+		Value(const Value &rhs) noexcept { init(rhs); }
+		Value& operator=(const Value &rhs) noexcept;
+		~Value() noexcept;
 
 	private:
+		void init(const Value &rhs) noexcept; 
+		void free() noexcept;
 
 		json::type type_ = json::Null;
-		double num_ = 0;
+		union {
+			double num_;
+			std::string str_;
+		};
 	};
 }
 

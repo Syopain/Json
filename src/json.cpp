@@ -20,14 +20,19 @@ namespace pain {
 		v->parse(content);
 	}
 
-	Json::Json() : v(new json::Value) { }
-	Json::~Json() {}
-	Json::Json(const Json &src)
+	Json::Json() noexcept : v(new json::Value) { }
+	Json::~Json() noexcept { }
+	Json::Json(const Json &rhs) noexcept
 	{
-		v.reset(new json::Value(*(src.v)));
+		v.reset(new json::Value(*(rhs.v)));
+	}
+	Json& Json::operator=(const Json &rhs) noexcept
+	{
+		v.reset(new json::Value(*(rhs.v)));
 	}
 
 	int Json::get_type() const noexcept
+
 	{
 		return v-> get_type();
 	}
@@ -42,6 +47,14 @@ namespace pain {
 	void Json::set_number(double d) noexcept
 	{
 		v-> set_number(d);
+	}
+	const std::string Json::get_string() const noexcept
+	{
+		return v-> get_string();
+	}
+	void Json::set_string(const std::string &str) noexcept
+	{
+		v-> set_string(str);
 	}
 
 }
