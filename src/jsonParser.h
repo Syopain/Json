@@ -17,7 +17,7 @@ namespace json {
 		void parse_number();
 		void parse_string();
 		void parse_hex4(const char* &p, unsigned &u);
-		void parse_encode_utf8(std::string &s, unsigned u);
+		void parse_encode_utf8(std::string &s, unsigned u) const noexcept;
 
 		Value &val_;
 		const char *cur_;

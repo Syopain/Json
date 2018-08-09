@@ -145,7 +145,7 @@ namespace json {
 		}
 	}
 
-	void Parser::parse_encode_utf8(std::string &str, unsigned u)
+	void Parser::parse_encode_utf8(std::string &str, unsigned u) const noexcept
 	{
 		if (u <= 0x7F)
 			str += static_cast<char> (u & 0xFF);
