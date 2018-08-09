@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string.h>
 #include "src/json.h"
 
 static int main_ret = 0;
@@ -71,7 +72,7 @@ static void test_parse_number()
 		v.parse(content, status);\
 		EXPECT_EQ_BASE("parse ok", status);\
 		EXPECT_EQ_BASE(json::String, v.get_type());\
-		EXPECT_EQ_BASE(expect, v.get_string());\
+		EXPECT_EQ_BASE(0, memcmp(expect, v.get_string().c_str(), v.get_string().size()));\
 	} while(0)
 
 static void test_parse_string()
@@ -82,6 +83,13 @@ static void test_parse_string()
 
 	TEST_STRING("Hello\nWorld", "\"Hello\\nWorld\"");
 	TEST_STRING("\" \\ / \b \f \n \r \t", "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"");
+
+    TEST_STRING("Hello\0World", "\"Hello\\u0000World\"");
+    TEST_STRING("\x24", "\"\\u0024\"");         /* Dollar sign U+0024 */
+    TEST_STRING("\xC2\xA2", "\"\\u00A2\"");     /* Cents sign U+00A2 */
+    TEST_STRING("\xE2\x82\xAC", "\"\\u20AC\""); /* Euro sign U+20AC */
+    TEST_STRING("\xF0\x9D\x84\x9E", "\"\\uD834\\uDD1E\"");  /* G clef sign U+1D11E */
+    TEST_STRING("\xF0\x9D\x84\x9E", "\"\\ud834\\udd1e\"");  /* G clef sign U+1D11E */
 }
 
 #define TEST_ERROR(error, content) \
@@ -131,12 +139,14 @@ static void test_parse_number_too_big()
 	TEST_ERROR("parse number too big", "-1e309");
 }
 
-static void test_parse_missing_quotation_mark() {
+static void test_parse_missing_quotation_mark()
+{
     TEST_ERROR("parse miss quotation mark", "\"");
 	TEST_ERROR("parse miss quotation mark", "\"abc");
 }
 
-static void test_parse_invalid_string_escape() {
+static void test_parse_invalid_string_escape()
+{
 #if 1
    TEST_ERROR("parse invalid string escape", "\"\\v\"");
    TEST_ERROR("parse invalid string escape", "\"\\'\"");
@@ -145,11 +155,36 @@ static void test_parse_invalid_string_escape() {
 #endif
 }
 
-static void test_parse_invalid_string_char() {
+static void test_parse_invalid_string_char()
+{
 #if 1
     TEST_ERROR("parse invalid string char", "\"\x01\"");
     TEST_ERROR("parse invalid string char", "\"\x1F\"");
 #endif
+}
+
+static void test_parse_invalid_unicode_hex()
+{
+	TEST_ERROR("parse invalid unicode hex", "\"\\u\"");
+	TEST_ERROR("parse invalid unicode hex", "\"\\u0\"");
+    TEST_ERROR("parse invalid unicode hex", "\"\\u01\"");
+	TEST_ERROR("parse invalid unicode hex", "\"\\u012\"");
+    TEST_ERROR("parse invalid unicode hex", "\"\\u/000\"");
+    TEST_ERROR("parse invalid unicode hex", "\"\\uG000\"");
+    TEST_ERROR("parse invalid unicode hex", "\"\\u0/00\"");
+    TEST_ERROR("parse invalid unicode hex", "\"\\u0G00\"");
+    TEST_ERROR("parse invalid unicode hex", "\"\\u0/00\"");
+    TEST_ERROR("parse invalid unicode hex", "\"\\u00G0\"");
+    TEST_ERROR("parse invalid unicode hex", "\"\\u000/\"");
+    TEST_ERROR("parse invalid unicode hex", "\"\\u000G\"");
+}
+
+static void test_parse_invalid_unicode_surrogate() {
+    TEST_ERROR("parse invalid unicode surrogate", "\"\\uD800\"");
+    TEST_ERROR("parse invalid unicode surrogate", "\"\\uDBFF\"");
+    TEST_ERROR("parse invalid unicode surrogate", "\"\\uD800\\\\\"");
+    TEST_ERROR("parse invalid unicode surrogate", "\"\\uD800\\uDBFF\"");
+    TEST_ERROR("parse invalid unicode surrogate", "\"\\uD800\\uE000\"");
 }
 
 static void test_parse() {
@@ -163,6 +198,8 @@ static void test_parse() {
     test_parse_missing_quotation_mark();
 	test_parse_invalid_string_escape();
 	test_parse_invalid_string_char();
+    test_parse_invalid_unicode_hex();
+    test_parse_invalid_unicode_surrogate();
 }
 
 int main() {
