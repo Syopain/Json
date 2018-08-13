@@ -56,5 +56,12 @@ namespace pain {
 	{
 		v-> set_string(str);
 	}
-
+	size_t Json::get_array_size() const noexcept
+	{
+		return v-> get_array_size();
+	}
+	const json::Value& Json::get_array_element(size_t index) const noexcept
+	{
+		return v-> get_array_element(index);
+	}
 }

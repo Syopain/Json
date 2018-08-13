@@ -84,6 +84,16 @@ namespace json {
 		assert(type_ == json::Array);
 		return arr_[index];
 	}
+	void Value::set_array(const std::vector<Value> &arr) noexcept
+	{
+		if (type_ == json::Array)
+			arr_ = arr;
+		else {
+			free();
+			type_ = json::Array;
+			new(&arr_) std::vector<Value>(arr);
+		}
+	}
 
 	void Value::parse(const std::string &content)
 	{

@@ -33,8 +33,9 @@ namespace json {
 			case 'n' : parse_literal("null", json::Null);  return;
 			case 't' : parse_literal("true", json::True);  return;
 			case 'f' : parse_literal("false", json::False); return;
-			case '\"': parse_string();return;
-			default  : parse_number();return; 
+			case '\"': parse_string(); return;
+			case '[' : parse_array();  return;
+			default  : parse_number(); return; 
 			case '\0': throw(Exception("parse expect value"));
 		}
 	}
@@ -164,6 +165,36 @@ namespace json {
 	        str += static_cast<char> (0x80 | ((u >> 12) & 0x3F));
 	        str += static_cast<char> (0x80 | ((u >>  6) & 0x3F));
 	        str += static_cast<char> (0x80 | ( u        & 0x3F));
+		}
+	}
+	void Parser::parse_array()
+	{
+		expect(cur_, '[');
+		parse_whitespace();
+		std::vector<Value> tmp;
+		if(*cur_ == ']') {
+			++cur_;
+			val_.set_array(tmp);
+			return;
+		}
+		for(;;) {
+			try{
+				parse_value();
+			} catch(Exception) {
+				val_.set_type(json::Null);
+				throw;
+			}
+			tmp.push_back(val_);
+			parse_whitespace();
+			if (*cur_ == ','){
+				++cur_;
+				parse_whitespace();
+			}
+			else if (*cur_ == ']') {
+				++cur_;
+				val_.set_array(tmp);
+			}
+			else throw(Exception("parse miss comma or square bracket"));
 		}
 	}
 }

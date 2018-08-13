@@ -92,6 +92,17 @@ static void test_parse_string()
     TEST_STRING("\xF0\x9D\x84\x9E", "\"\\ud834\\udd1e\"");  /* G clef sign U+1D11E */
 }
 
+static void test_parse_array()
+{
+	pain::Json v;
+
+	v.parse("[ ]", status);
+	EXPECT_EQ_BASE("parse ok", status);
+	EXPECT_EQ_BASE(json::Array, v.get_type());
+	EXPECT_EQ_BASE(0, v.get_array_size());
+	
+}
+
 #define TEST_ERROR(error, content) \
 	do {\
 		pain::Json v;\
@@ -119,6 +130,11 @@ static void test_parse_invalid_value()
     TEST_ERROR("parse invalid value", "inf");
     TEST_ERROR("parse invalid value", "NAN");
     TEST_ERROR("parse invalid value", "nan");
+
+#if 1
+    TEST_ERROR("parse invalid value", "[1,]");
+    TEST_ERROR("parse invalid value", "[\"a\", nul]");
+#endif
 }
 
 static void test_parse_root_not_singular()
@@ -187,10 +203,21 @@ static void test_parse_invalid_unicode_surrogate() {
     TEST_ERROR("parse invalid unicode surrogate", "\"\\uD800\\uE000\"");
 }
 
+static void test_parse_miss_comma_or_square_bracket() {
+#if 1
+    TEST_ERROR("parse miss comma or square bracket", "[1");
+    TEST_ERROR("parse miss comma or square bracket", "[1}");
+    TEST_ERROR("parse miss comma or square bracket", "[1 2");
+    TEST_ERROR("parse miss comma or square bracket", "[[]");
+#endif
+}
+
 static void test_parse() {
 	test_parse_literal();
 	test_parse_number();
 	test_parse_string();
+	test_parse_array();
+
 	test_parse_expect_value();
 	test_parse_invalid_value();
 	test_parse_root_not_singular();
@@ -200,6 +227,7 @@ static void test_parse() {
 	test_parse_invalid_string_char();
     test_parse_invalid_unicode_hex();
     test_parse_invalid_unicode_surrogate();
+	test_parse_miss_comma_or_square_bracket();
 }
 
 int main() {
