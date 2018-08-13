@@ -7,6 +7,7 @@ namespace json {
 
 	Value& Value::operator=(const Value &rhs) noexcept
 	{
+		free();
 		init(rhs);
 	}
 	

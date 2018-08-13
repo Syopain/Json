@@ -124,7 +124,8 @@ namespace json {
 			}
 			else if ((unsigned char) *p < 0x20) {
 				throw (Exception("parse invalid string char"));
-			} else tmp += *p++;
+			}
+			else tmp += *p++;
 		}
 		val_.set_string(tmp);
 		cur_ = ++p;

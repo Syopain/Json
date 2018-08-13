@@ -204,7 +204,7 @@ static void test_parse_invalid_unicode_surrogate() {
 }
 
 static void test_parse_miss_comma_or_square_bracket() {
-#if 1
+#if 0
     TEST_ERROR("parse miss comma or square bracket", "[1");
     TEST_ERROR("parse miss comma or square bracket", "[1}");
     TEST_ERROR("parse miss comma or square bracket", "[1 2");
