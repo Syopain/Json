@@ -23,9 +23,9 @@ namespace json {
 		switch (type_) {
 			case json::Number: num_ = rhs.num_;
 				break;
-			case json::String: str_ = rhs.str_;
+			case json::String: new(&str_) std::string(rhs.str_);
 				break;
-			case json::Array:  arr_ = rhs.arr_;
+			case json::Array:  new(&arr_) std::vector<Value>(rhs.arr_);
 				break;
 		}
 	}
@@ -98,6 +98,7 @@ namespace json {
 
 	void Value::parse(const std::string &content)
 	{
+		set_type(json::Null);
 		Parser(*this, content);
 	}
 }

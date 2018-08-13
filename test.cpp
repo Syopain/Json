@@ -100,7 +100,18 @@ static void test_parse_array()
 	EXPECT_EQ_BASE("parse ok", status);
 	EXPECT_EQ_BASE(json::Array, v.get_type());
 	EXPECT_EQ_BASE(0, v.get_array_size());
-	
+
+	v.parse("[ null , false , true , 123 , \"abc\" ]", status);
+	EXPECT_EQ_BASE("parse ok", status);
+	EXPECT_EQ_BASE(json::Array, v.get_type());
+	EXPECT_EQ_BASE(5, v.get_array_size());
+	EXPECT_EQ_BASE(json::Null,   v.get_array_element(0).get_type());
+    EXPECT_EQ_BASE(json::False,  v.get_array_element(1).get_type());
+    EXPECT_EQ_BASE(json::True,   v.get_array_element(2).get_type());
+    EXPECT_EQ_BASE(json::Number, v.get_array_element(3).get_type());
+    EXPECT_EQ_BASE(json::String, v.get_array_element(4).get_type());
+    EXPECT_EQ_BASE(123.0, v.get_array_element(3).get_number());
+    EXPECT_EQ_BASE("abc", v.get_array_element(4).get_string());
 }
 
 #define TEST_ERROR(error, content) \
@@ -204,7 +215,7 @@ static void test_parse_invalid_unicode_surrogate() {
 }
 
 static void test_parse_miss_comma_or_square_bracket() {
-#if 0
+#if 1
     TEST_ERROR("parse miss comma or square bracket", "[1");
     TEST_ERROR("parse miss comma or square bracket", "[1}");
     TEST_ERROR("parse miss comma or square bracket", "[1 2");

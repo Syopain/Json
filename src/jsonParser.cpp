@@ -195,7 +195,10 @@ namespace json {
 				++cur_;
 				val_.set_array(tmp);
 			}
-			else throw(Exception("parse miss comma or square bracket"));
+			else {
+				val_.set_type(json::Null);
+				throw(Exception("parse miss comma or square bracket"));
+			}
 		}
 	}
 }
