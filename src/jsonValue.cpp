@@ -21,14 +21,22 @@ namespace json {
 		num_ = 0;
 		switch (type_) {
 			case json::Number: num_ = rhs.num_;
+				break;
 			case json::String: str_ = rhs.str_;
+				break;
+			case json::Array:  arr_ = rhs.arr_;
+				break;
 		}
 	}
 	void Value::free() noexcept
 	{
 		using std::string;
-		if (type_ == json::String)
-			str_.~string();
+		switch (type_) {
+			case json::String: str_.~string();
+				break;
+			case json::Array: arr_.~vector<Value>();
+				break;
+		}
 	}
 
 	int Value::get_type() const noexcept
@@ -61,9 +69,20 @@ namespace json {
 		if (type_ == json::String)
 			str_ = str;
 		else {
+			free();
 			type_ = json::String;
 			new(&str_) std::string(str);
 		}
+	}
+	size_t Value::get_array_size() const noexcept
+	{
+		assert(type_ == json::Array);
+		return arr_.size();
+	}
+	const Value& Value::get_array_element(size_t index) const noexcept
+	{
+		assert(type_ == json::Array);
+		return arr_[index];
 	}
 
 	void Value::parse(const std::string &content)
