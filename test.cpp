@@ -106,12 +106,28 @@ static void test_parse_array()
 	EXPECT_EQ_BASE(json::Array, v.get_type());
 	EXPECT_EQ_BASE(5, v.get_array_size());
 	EXPECT_EQ_BASE(json::Null,   v.get_array_element(0).get_type());
-    EXPECT_EQ_BASE(json::False,  v.get_array_element(1).get_type());
-    EXPECT_EQ_BASE(json::True,   v.get_array_element(2).get_type());
-    EXPECT_EQ_BASE(json::Number, v.get_array_element(3).get_type());
-    EXPECT_EQ_BASE(json::String, v.get_array_element(4).get_type());
-    EXPECT_EQ_BASE(123.0, v.get_array_element(3).get_number());
-    EXPECT_EQ_BASE("abc", v.get_array_element(4).get_string());
+	EXPECT_EQ_BASE(json::False,  v.get_array_element(1).get_type());
+	EXPECT_EQ_BASE(json::True,   v.get_array_element(2).get_type());
+	EXPECT_EQ_BASE(json::Number, v.get_array_element(3).get_type());
+	EXPECT_EQ_BASE(json::String, v.get_array_element(4).get_type());
+	EXPECT_EQ_BASE(123.0, v.get_array_element(3).get_number());
+	EXPECT_EQ_BASE("abc", v.get_array_element(4).get_string());
+	
+	v.parse("[ [ ] , [ 0 ] , [ 0 , 1 ] , [ 0 , 1 , 2 ] ]", status);
+	EXPECT_EQ_BASE("parse ok", status);
+	EXPECT_EQ_BASE(json::Array, v.get_type());
+	EXPECT_EQ_BASE(4, v.get_array_size());
+	for(int i = 0; i < 4; ++i) {
+		pain::Json a = v.get_array_element(i);
+		EXPECT_EQ_BASE(json::Array, a.get_type());
+		EXPECT_EQ_BASE(i, a.get_array_size());
+		for(int j = 0; j < i; ++j) {
+			pain::Json e = a.get_array_element(j);
+			EXPECT_EQ_BASE(json::Number, e.get_type());
+			EXPECT_EQ_BASE((double)j, e.get_number());
+		
+		}
+	}
 }
 
 #define TEST_ERROR(error, content) \
@@ -204,6 +220,7 @@ static void test_parse_invalid_unicode_hex()
     TEST_ERROR("parse invalid unicode hex", "\"\\u00G0\"");
     TEST_ERROR("parse invalid unicode hex", "\"\\u000/\"");
     TEST_ERROR("parse invalid unicode hex", "\"\\u000G\"");
+	TEST_ERROR("parse invalid unicode hex", "\"\\u 123\"");
 }
 
 static void test_parse_invalid_unicode_surrogate() {

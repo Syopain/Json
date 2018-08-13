@@ -194,6 +194,7 @@ namespace json {
 			else if (*cur_ == ']') {
 				++cur_;
 				val_.set_array(tmp);
+				return;
 			}
 			else {
 				val_.set_type(json::Null);
