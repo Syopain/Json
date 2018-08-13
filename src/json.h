@@ -38,6 +38,8 @@ namespace pain{
 		void set_number(double d) noexcept;
 		const std::string get_string() const noexcept;
 		void set_string(const std::string& str) noexcept;
+		size_t get_array_size() const noexcept;
+		const Json get_array_element(size_t index) const noexcept;
 	private:
 		std::unique_ptr<json::Value> v;
 	};

@@ -92,6 +92,44 @@ static void test_parse_string()
     TEST_STRING("\xF0\x9D\x84\x9E", "\"\\ud834\\udd1e\"");  /* G clef sign U+1D11E */
 }
 
+static void test_parse_array()
+{
+	pain::Json v;
+
+	v.parse("[ ]", status);
+	EXPECT_EQ_BASE("parse ok", status);
+	EXPECT_EQ_BASE(json::Array, v.get_type());
+	EXPECT_EQ_BASE(0, v.get_array_size());
+
+	v.parse("[ null , false , true , 123 , \"abc\" ]", status);
+	EXPECT_EQ_BASE("parse ok", status);
+	EXPECT_EQ_BASE(json::Array, v.get_type());
+	EXPECT_EQ_BASE(5, v.get_array_size());
+	EXPECT_EQ_BASE(json::Null,   v.get_array_element(0).get_type());
+	EXPECT_EQ_BASE(json::False,  v.get_array_element(1).get_type());
+	EXPECT_EQ_BASE(json::True,   v.get_array_element(2).get_type());
+	EXPECT_EQ_BASE(json::Number, v.get_array_element(3).get_type());
+	EXPECT_EQ_BASE(json::String, v.get_array_element(4).get_type());
+	EXPECT_EQ_BASE(123.0, v.get_array_element(3).get_number());
+	EXPECT_EQ_BASE("abc", v.get_array_element(4).get_string());
+	
+	v.parse("[ [ ] , [ 0 ] , [ 0 , 1 ] , [ 0 , 1 , 2 ] ]", status);
+	EXPECT_EQ_BASE("parse ok", status);
+	EXPECT_EQ_BASE(json::Array, v.get_type());
+	EXPECT_EQ_BASE(4, v.get_array_size());
+	for(int i = 0; i < 4; ++i) {
+		pain::Json a = v.get_array_element(i);
+		EXPECT_EQ_BASE(json::Array, a.get_type());
+		EXPECT_EQ_BASE(i, a.get_array_size());
+		for(int j = 0; j < i; ++j) {
+			pain::Json e = a.get_array_element(j);
+			EXPECT_EQ_BASE(json::Number, e.get_type());
+			EXPECT_EQ_BASE((double)j, e.get_number());
+		
+		}
+	}
+}
+
 #define TEST_ERROR(error, content) \
 	do {\
 		pain::Json v;\
@@ -119,6 +157,11 @@ static void test_parse_invalid_value()
     TEST_ERROR("parse invalid value", "inf");
     TEST_ERROR("parse invalid value", "NAN");
     TEST_ERROR("parse invalid value", "nan");
+
+#if 1
+    TEST_ERROR("parse invalid value", "[1,]");
+    TEST_ERROR("parse invalid value", "[\"a\", nul]");
+#endif
 }
 
 static void test_parse_root_not_singular()
@@ -177,6 +220,7 @@ static void test_parse_invalid_unicode_hex()
     TEST_ERROR("parse invalid unicode hex", "\"\\u00G0\"");
     TEST_ERROR("parse invalid unicode hex", "\"\\u000/\"");
     TEST_ERROR("parse invalid unicode hex", "\"\\u000G\"");
+	TEST_ERROR("parse invalid unicode hex", "\"\\u 123\"");
 }
 
 static void test_parse_invalid_unicode_surrogate() {
@@ -187,10 +231,21 @@ static void test_parse_invalid_unicode_surrogate() {
     TEST_ERROR("parse invalid unicode surrogate", "\"\\uD800\\uE000\"");
 }
 
+static void test_parse_miss_comma_or_square_bracket() {
+#if 1
+    TEST_ERROR("parse miss comma or square bracket", "[1");
+    TEST_ERROR("parse miss comma or square bracket", "[1}");
+    TEST_ERROR("parse miss comma or square bracket", "[1 2");
+    TEST_ERROR("parse miss comma or square bracket", "[[]");
+#endif
+}
+
 static void test_parse() {
 	test_parse_literal();
 	test_parse_number();
 	test_parse_string();
+	test_parse_array();
+
 	test_parse_expect_value();
 	test_parse_invalid_value();
 	test_parse_root_not_singular();
@@ -200,6 +255,7 @@ static void test_parse() {
 	test_parse_invalid_string_char();
     test_parse_invalid_unicode_hex();
     test_parse_invalid_unicode_surrogate();
+	test_parse_miss_comma_or_square_bracket();
 }
 
 int main() {

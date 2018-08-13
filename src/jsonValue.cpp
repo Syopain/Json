@@ -7,6 +7,7 @@ namespace json {
 
 	Value& Value::operator=(const Value &rhs) noexcept
 	{
+		free();
 		init(rhs);
 	}
 	
@@ -21,14 +22,22 @@ namespace json {
 		num_ = 0;
 		switch (type_) {
 			case json::Number: num_ = rhs.num_;
-			case json::String: str_ = rhs.str_;
+				break;
+			case json::String: new(&str_) std::string(rhs.str_);
+				break;
+			case json::Array:  new(&arr_) std::vector<Value>(rhs.arr_);
+				break;
 		}
 	}
 	void Value::free() noexcept
 	{
 		using std::string;
-		if (type_ == json::String)
-			str_.~string();
+		switch (type_) {
+			case json::String: str_.~string();
+				break;
+			case json::Array: arr_.~vector<Value>();
+				break;
+		}
 	}
 
 	int Value::get_type() const noexcept
@@ -61,13 +70,35 @@ namespace json {
 		if (type_ == json::String)
 			str_ = str;
 		else {
+			free();
 			type_ = json::String;
 			new(&str_) std::string(str);
+		}
+	}
+	size_t Value::get_array_size() const noexcept
+	{
+		assert(type_ == json::Array);
+		return arr_.size();
+	}
+	const Value& Value::get_array_element(size_t index) const noexcept
+	{
+		assert(type_ == json::Array);
+		return arr_[index];
+	}
+	void Value::set_array(const std::vector<Value> &arr) noexcept
+	{
+		if (type_ == json::Array)
+			arr_ = arr;
+		else {
+			free();
+			type_ = json::Array;
+			new(&arr_) std::vector<Value>(arr);
 		}
 	}
 
 	void Value::parse(const std::string &content)
 	{
+		set_type(json::Null);
 		Parser(*this, content);
 	}
 }
