@@ -95,10 +95,37 @@ namespace json {
 			new(&arr_) std::vector<Value>(arr);
 		}
 	}
+	size_t Value::get_object_size() const noexcept
+	{
+		assert(type_ == json::Object);
+		return obj_.size();
+	}
+	const std::string& Value::get_object_key(size_t index) const noexcept
+	{
+		assert(type_ == json::Object);
+		auto iter = obj_.begin();
+		for(int i = 0; i < index; ++i,++iter);
+		return iter->first;
+	}
+	size_t Value::get_object_key_length(size_t index) const noexcept
+	{
+		assert(type_ == json::Object);
+		auto iter = obj_.begin();
+		for(int i = 0; i < index; ++i,++iter);
+		return iter->first.size();
+	}
+	const Value& Value::get_object_value(size_t index) const noexcept
+	{
+		assert(type_ == json::Object);
+		auto iter = obj_.begin();
+		for(int i = 0; i < index; ++i,++iter);
+		return iter->second;
+	}
 
 	void Value::parse(const std::string &content)
 	{
 		set_type(json::Null);
 		Parser(*this, content);
 	}
+
 }
