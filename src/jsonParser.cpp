@@ -35,6 +35,7 @@ namespace json {
 			case 'f' : parse_literal("false", json::False); return;
 			case '\"': parse_string(); return;
 			case '[' : parse_array();  return;
+			case '{' : parse_object(); return;
 			default  : parse_number(); return; 
 			case '\0': throw(Exception("parse expect value"));
 		}
@@ -88,9 +89,15 @@ namespace json {
 
 	void Parser::parse_string()
 	{
+		std::string s;
+		parse_string_raw(s);
+		val_.set_string(s);
+	}
+
+	void Parser::parse_string_raw(std::string &tmp)
+	{
 		expect(cur_, '\"');
 		const char *p = cur_;
-		std::string tmp;
 		unsigned u = 0, u2 = 0;
 		while (*p != '\"') {
 			if(*p == '\0')
@@ -127,7 +134,6 @@ namespace json {
 			}
 			else tmp += *p++;
 		}
-		val_.set_string(tmp);
 		cur_ = ++p;
 	}
 
@@ -201,5 +207,52 @@ namespace json {
 				throw(Exception("parse miss comma or square bracket"));
 			}
 		}
+	}
+	
+	void Parser::parse_object()
+	{
+		expect(cur_, '{');
+		parse_whitespace();
+		std::vector<std::pair<std::string, Value>> tmp;
+		std::string key;
+		if (*cur_ == '}') {
+			++cur_;
+			val_.set_object(tmp);
+			return;
+		}
+		for (;;) {
+			if (*cur_ != '\"') throw(Exception("parse miss key"));
+			try{
+				parse_string_raw(key);
+			} catch (Exception) {
+				throw(Exception("parse miss key"));
+			}
+			parse_whitespace();
+			if(*cur_++ != ':') throw(Exception("parse miss colon"));
+			parse_whitespace();
+			try{
+				parse_value();
+			} catch(Exception) {
+				val_.set_type(json::Null);
+				throw;
+			}
+			tmp.push_back(make_pair(key, val_));
+			val_.set_type(json::Null);
+			key.clear();
+			parse_whitespace();
+			if (*cur_ == ',') {
+				++cur_;
+				parse_whitespace();
+			}
+			else if (*cur_ == '}'){
+				++cur_;
+				val_.set_object(tmp);
+				return;
+			}
+			else {
+				val_.set_type(json::Null);
+				throw(Exception("parse miss comma or curly bracket"));
+			}
+		}	
 	}
 }

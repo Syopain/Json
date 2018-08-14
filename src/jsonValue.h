@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <map>
+#include <utility>
 #include "json.h"
 
 namespace json {
@@ -24,7 +24,7 @@ namespace json {
 		const std::string& get_object_key(size_t index) const noexcept;
 		size_t get_object_key_length(size_t index) const noexcept;
 		const Value& get_object_value(size_t index) const noexcept;
-
+		void set_object(const std::vector<std::pair<std::string, Value>> &obj) noexcept;
 
 
 		Value() noexcept { num_ = 0; }
@@ -41,7 +41,7 @@ namespace json {
 			double num_;
 			std::string str_;
 			std::vector<Value> arr_;
-			std::multimap<std::string, Value> obj_;
+			std::vector<std::pair<std::string, Value>> obj_;
 		};
 	};
 }

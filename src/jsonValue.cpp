@@ -27,6 +27,8 @@ namespace json {
 				break;
 			case json::Array:  new(&arr_) std::vector<Value>(rhs.arr_);
 				break;
+			case json::Object: new(&obj_) std::vector<std::pair<std::string, Value>>(rhs.obj_);
+				break;
 		}
 	}
 	void Value::free() noexcept
@@ -35,7 +37,9 @@ namespace json {
 		switch (type_) {
 			case json::String: str_.~string();
 				break;
-			case json::Array: arr_.~vector<Value>();
+			case json::Array:  arr_.~vector<Value>();
+				break;
+			case json::Object: obj_.~vector<std::pair<std::string, Value>>();
 				break;
 		}
 	}
@@ -103,23 +107,17 @@ namespace json {
 	const std::string& Value::get_object_key(size_t index) const noexcept
 	{
 		assert(type_ == json::Object);
-		auto iter = obj_.begin();
-		for(int i = 0; i < index; ++i,++iter);
-		return iter->first;
+		return obj_[index].first;
 	}
 	size_t Value::get_object_key_length(size_t index) const noexcept
 	{
 		assert(type_ == json::Object);
-		auto iter = obj_.begin();
-		for(int i = 0; i < index; ++i,++iter);
-		return iter->first.size();
+		return obj_[index].first.size();
 	}
 	const Value& Value::get_object_value(size_t index) const noexcept
 	{
 		assert(type_ == json::Object);
-		auto iter = obj_.begin();
-		for(int i = 0; i < index; ++i,++iter);
-		return iter->second;
+		return obj_[index].second;
 	}
 
 	void Value::parse(const std::string &content)
@@ -127,5 +125,14 @@ namespace json {
 		set_type(json::Null);
 		Parser(*this, content);
 	}
-
+	void Value::set_object(const std::vector<std::pair<std::string, Value>> &obj) noexcept
+	{
+		if(type_ == json::Object)
+			obj_ = obj;
+		else{
+			free();
+			type_ = json::Object;
+			new(&obj_) std::vector<std::pair<std::string, Value>>(obj);
+		}
+	}
 }
