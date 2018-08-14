@@ -40,6 +40,10 @@ namespace pain{
 		void set_string(const std::string& str) noexcept;
 		size_t get_array_size() const noexcept;
 		const Json get_array_element(size_t index) const noexcept;
+		size_t get_object_size() const noexcept;
+		const std::string& get_object_key(size_t index) const noexcept;
+		size_t get_object_key_length(size_t index) const noexcept;
+		Json get_object_value(size_t index) const noexcept;
 	private:
 		std::unique_ptr<json::Value> v;
 	};

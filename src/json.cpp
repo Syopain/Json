@@ -66,4 +66,23 @@ namespace pain {
 		ret.v.reset(new json::Value(v-> get_array_element(index)));
 		return ret;
 	}
+	size_t Json::get_object_size() const noexcept
+	{
+		return v-> get_object_size();
+	}
+	const std::string& Json::get_object_key(size_t index) const noexcept
+	{
+		return v-> get_object_key(index);
+	}
+	size_t Json::get_object_key_length(size_t index) const noexcept
+	{
+		return v-> get_object_key_length(index);
+	}
+	Json Json::get_object_value(size_t index) const noexcept
+	{
+		Json ret;
+		ret.v.reset(new json::Value(v-> get_object_value(index)));
+		return ret;
+	}
+
 }

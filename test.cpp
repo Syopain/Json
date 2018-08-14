@@ -75,6 +75,8 @@ static void test_parse_number()
 		EXPECT_EQ_BASE(0, memcmp(expect, v.get_string().c_str(), v.get_string().size()));\
 	} while(0)
 
+#define EXPECT_EQ_STRING(expect, actual) EXPECT_EQ_BASE(0, memcmp(expect, actual.c_str(), actual.size()));
+
 static void test_parse_string()
 {
 
@@ -111,7 +113,7 @@ static void test_parse_array()
 	EXPECT_EQ_BASE(json::Number, v.get_array_element(3).get_type());
 	EXPECT_EQ_BASE(json::String, v.get_array_element(4).get_type());
 	EXPECT_EQ_BASE(123.0, v.get_array_element(3).get_number());
-	EXPECT_EQ_BASE("abc", v.get_array_element(4).get_string());
+	EXPECT_EQ_STRING("abc", v.get_array_element(4).get_string());
 	
 	v.parse("[ [ ] , [ 0 ] , [ 0 , 1 ] , [ 0 , 1 , 2 ] ]", status);
 	EXPECT_EQ_BASE("parse ok", status);
@@ -129,6 +131,62 @@ static void test_parse_array()
 		}
 	}
 }
+
+static void test_parse_object()
+{
+	pain::Json v;
+
+	v.parse(" { } ", status);
+	EXPECT_EQ_BASE("parse ok", status);
+	EXPECT_EQ_BASE(json::Object, v.get_type());
+	EXPECT_EQ_BASE(0, v.get_object_size());
+
+	v.parse(" { "
+	        "\"n\" : null , "
+	        "\"f\" : false , "
+	        "\"t\" : true , "
+	        "\"i\" : 123 , "
+	        "\"s\" : \"abc\", "
+	        "\"a\" : [ 1, 2, 3 ],"
+	        "\"o\" : { \"1\" : 1, \"2\" : 2, \"3\" : 3 }"
+	        " } ", status);
+	EXPECT_EQ_BASE("parse ok", status);
+	EXPECT_EQ_BASE(7, v.get_object_size());
+	EXPECT_EQ_BASE("n", v.get_object_key(0));
+	EXPECT_EQ_BASE(json::Null, v.get_object_value(0).get_type());
+	EXPECT_EQ_BASE("f", v.get_object_key(1));
+	EXPECT_EQ_BASE(json::False, v.get_object_value(1).get_type());
+	EXPECT_EQ_BASE("t", v.get_object_key(2));
+	EXPECT_EQ_BASE(json::True, v.get_object_value(2).get_type());
+	EXPECT_EQ_BASE("i", v.get_object_key(3));
+	EXPECT_EQ_BASE(json::Number, v.get_object_value(3).get_type());
+	EXPECT_EQ_BASE(123.0, v.get_object_value(3).get_number());
+	EXPECT_EQ_BASE("s", v.get_object_key(4));
+	EXPECT_EQ_BASE(json::String, v.get_object_value(4).get_type());
+	EXPECT_EQ_BASE("abc", v.get_object_value(4).get_string());
+	EXPECT_EQ_BASE("a", v.get_object_key(5));
+	EXPECT_EQ_BASE(json::Array, v.get_object_value(5).get_type());
+	EXPECT_EQ_BASE(3, v.get_object_value(5).get_array_size());
+	for (int i = 0; i < 3; ++i) {
+		pain::Json e = v.get_object_value(5).get_array_element(i);
+		EXPECT_EQ_BASE(json::Number, e.get_type());
+		EXPECT_EQ_BASE(i + 1.0, e.get_number());
+	}
+	EXPECT_EQ_BASE("o", v.get_object_key(6));
+	{
+		pain::Json o = v.get_object_value(6);
+		EXPECT_EQ_BASE(json::Object, o.get_type());
+		for(int i = 0; i < 3; ++i) {
+			pain::Json ov = o.get_object_value(i);
+			EXPECT_EQ_BASE('1' + i, (o.get_object_key(i))[0]);
+			EXPECT_EQ_BASE(1, o.get_object_key_length(i));
+			EXPECT_EQ_BASE(json::Number, ov.get_type());
+			EXPECT_EQ_BASE(i + 1.0, ov.get_number());
+		}
+	}
+
+}
+
 
 #define TEST_ERROR(error, content) \
 	do {\
@@ -240,11 +298,38 @@ static void test_parse_miss_comma_or_square_bracket() {
 #endif
 }
 
+static void test_parse_miss_key()
+{
+	TEST_ERROR("parse miss key", "{:1,");
+	TEST_ERROR("parse miss key", "{1:1,");
+	TEST_ERROR("parse miss key", "{true:1,");
+	TEST_ERROR("parse miss key", "{false:1,");
+	TEST_ERROR("parse miss key", "{null:1,");
+	TEST_ERROR("parse miss key", "{[]:1,");
+	TEST_ERROR("parse miss key", "{{}:1,");
+	TEST_ERROR("parse miss key", "{\"a\":1,");
+}
+
+static void test_parse_miss_colon()
+{
+	TEST_ERROR("parse miss colon", "{\"a\"}");
+	TEST_ERROR("parse miss colon", "{\"a\",\"b\"}");
+}
+
+static void test_parse_miss_comma_or_curly_bracket()
+{
+	TEST_ERROR("parse miss comma or curly bracket", "{\"a\":1");
+	TEST_ERROR("parse miss comma or curly bracket", "{\"a\":1]");
+	TEST_ERROR("parse miss comma or curly bracket", "{\"a\":1 \"b\"");
+	TEST_ERROR("parse miss comma or curly bracket", "{\"a\":{}");
+}
+
 static void test_parse() {
     test_parse_literal();
     test_parse_number();
     test_parse_string();
     test_parse_array();
+	test_parse_object();
 
     test_parse_expect_value();
     test_parse_invalid_value();
@@ -256,6 +341,9 @@ static void test_parse() {
     test_parse_invalid_unicode_hex();
     test_parse_invalid_unicode_surrogate();
     test_parse_miss_comma_or_square_bracket();
+	test_parse_miss_key();
+	test_parse_miss_colon;
+	test_parse_miss_comma_or_curly_bracket();
 }
 
 int main() {

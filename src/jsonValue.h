@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 #include "json.h"
 
 namespace json {
@@ -19,6 +20,11 @@ namespace json {
 		size_t get_array_size() const noexcept;
 		const Value& get_array_element(size_t index) const noexcept;
 		void set_array(const std::vector<Value> &arr) noexcept;
+		size_t get_object_size() const noexcept;
+		const std::string& get_object_key(size_t index) const noexcept;
+		size_t get_object_key_length(size_t index) const noexcept;
+		const Value& get_object_value(size_t index) const noexcept;
+		void set_object(const std::vector<std::pair<std::string, Value>> &obj) noexcept;
 
 
 		Value() noexcept { num_ = 0; }
@@ -35,6 +41,7 @@ namespace json {
 			double num_;
 			std::string str_;
 			std::vector<Value> arr_;
+			std::vector<std::pair<std::string, Value>> obj_;
 		};
 	};
 }
