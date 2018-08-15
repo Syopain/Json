@@ -17,8 +17,14 @@ namespace pain {
 
 	void Json::parse(const std::string &content)
 	{
-		v->parse(content);
+		v-> parse(content);
 	}
+
+	void Json::stringify(std::string &content) const noexcept
+	{
+		v-> stringify(content);
+	}
+
 
 	Json::Json() noexcept : v(new json::Value) { }
 	Json::~Json() noexcept { }

@@ -14,10 +14,10 @@ namespace json {
 		++c;
 	}
 
-	Parser::Parser(Value &v, const std::string &content)
-		: val_(v), cur_(content.c_str())
+	Parser::Parser(Value &val, const std::string &content)
+		: val_(val), cur_(content.c_str())
 	{
-		v.set_type(json::Null);
+		val_.set_type(json::Null);
 		parse_whitespace();
 		parse_value();
 		parse_whitespace();

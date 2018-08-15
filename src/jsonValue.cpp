@@ -2,6 +2,7 @@
 #include <string>
 #include "jsonValue.h"
 #include "jsonParser.h"
+#include "jsonGenerator.h"
 
 namespace json {
 
@@ -64,7 +65,7 @@ namespace json {
 		type_ = json::Number;
 		num_ = d;
 	}
-	const std::string Value::get_string() const noexcept
+	const std::string& Value::get_string() const noexcept
 	{
 		assert(type_ == json::String);
 		return str_;
@@ -119,12 +120,6 @@ namespace json {
 		assert(type_ == json::Object);
 		return obj_[index].second;
 	}
-
-	void Value::parse(const std::string &content)
-	{
-		set_type(json::Null);
-		Parser(*this, content);
-	}
 	void Value::set_object(const std::vector<std::pair<std::string, Value>> &obj) noexcept
 	{
 		if(type_ == json::Object)
@@ -135,4 +130,15 @@ namespace json {
 			new(&obj_) std::vector<std::pair<std::string, Value>>(obj);
 		}
 	}
+
+	void Value::parse(const std::string &content)
+	{
+		Parser(*this, content);
+	}
+
+	void Value::stringify(std::string &content) const noexcept
+	{
+		Generator(*this, content);
+	}
+
 }

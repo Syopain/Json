@@ -26,6 +26,7 @@ namespace pain{
 	public:
 		void parse(const std::string &content, std::string &status) noexcept;
 		void parse(const std::string &content);
+		void stringify(std::string &content) const noexcept;
 
 		Json() noexcept;
 		~Json() noexcept;
