@@ -16,7 +16,7 @@ namespace json {
 		void set_type(type t) noexcept;
 		double get_number() const noexcept;
 		void set_number(double d) noexcept;
-		const std::string get_string() const noexcept;
+		const std::string& get_string() const noexcept;
 		void set_string(const std::string &str) noexcept;
 		size_t get_array_size() const noexcept;
 		const Value& get_array_element(size_t index) const noexcept;

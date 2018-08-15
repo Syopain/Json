@@ -2,6 +2,7 @@
 #include <string>
 #include "jsonValue.h"
 #include "jsonParser.h"
+#include "jsonGenerator.h"
 
 namespace json {
 
@@ -64,7 +65,7 @@ namespace json {
 		type_ = json::Number;
 		num_ = d;
 	}
-	const std::string Value::get_string() const noexcept
+	const std::string& Value::get_string() const noexcept
 	{
 		assert(type_ == json::String);
 		return str_;
@@ -138,23 +139,6 @@ namespace json {
 	void Value::stringify(std::string &content) const noexcept
 	{
 		Generator(*this, content);
-		content.clear();
-
-		switch (val_.type) {
-			case json::Null:  content += "null";  break;
-			case json::True:  content += "true";  break;
-			case json::False: content += "False"; break;
-			case json::Number: {
-					char buffer[32] = {0};
-					sprintf(buffer, "%.17g", val_.num_);
-					content += buffer;
-				}
-				break;
-			case json::String:
-			case json::Array:
-			case json::Object:
-
-		}
 	}
 
 }
