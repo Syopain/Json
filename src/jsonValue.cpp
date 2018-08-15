@@ -119,12 +119,6 @@ namespace json {
 		assert(type_ == json::Object);
 		return obj_[index].second;
 	}
-
-	void Value::parse(const std::string &content)
-	{
-		set_type(json::Null);
-		Parser(*this, content);
-	}
 	void Value::set_object(const std::vector<std::pair<std::string, Value>> &obj) noexcept
 	{
 		if(type_ == json::Object)
@@ -135,4 +129,32 @@ namespace json {
 			new(&obj_) std::vector<std::pair<std::string, Value>>(obj);
 		}
 	}
+
+	void Value::parse(const std::string &content)
+	{
+		Parser(*this, content);
+	}
+
+	void Value::stringify(std::string &content) const noexcept
+	{
+		Generator(*this, content);
+		content.clear();
+
+		switch (val_.type) {
+			case json::Null:  content += "null";  break;
+			case json::True:  content += "true";  break;
+			case json::False: content += "False"; break;
+			case json::Number: {
+					char buffer[32] = {0};
+					sprintf(buffer, "%.17g", val_.num_);
+					content += buffer;
+				}
+				break;
+			case json::String:
+			case json::Array:
+			case json::Object:
+
+		}
+	}
+
 }

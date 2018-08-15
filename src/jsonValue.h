@@ -11,6 +11,7 @@ namespace json {
 	class Value{
 	public:
 		void parse(const std::string &content);
+		void stringify(std::string &content) const noexcept;
 		int get_type() const noexcept;
 		void set_type(type t) noexcept;
 		double get_number() const noexcept;
