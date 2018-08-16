@@ -26,7 +26,7 @@ namespace json {
 		size_t get_object_key_length(size_t index) const noexcept;
 		const Value& get_object_value(size_t index) const noexcept;
 		void set_object(const std::vector<std::pair<std::string, Value>> &obj) noexcept;
-
+		long long find_object_index(const std::string &key) const noexcept;
 
 		Value() noexcept { num_ = 0; }
 		Value(const Value &rhs) noexcept { init(rhs); }
@@ -44,7 +44,11 @@ namespace json {
 			std::vector<Value> arr_;
 			std::vector<std::pair<std::string, Value>> obj_;
 		};
+		
+		friend bool operator==(const Value &lhs, const Value &rhs) noexcept;
 	};
+	bool operator==(const Value &lhs, const Value &rhs) noexcept;
+	bool operator!=(const Value &lhs, const Value &rhs) noexcept;
 }
 
 #endif	//	JSONVALUE_H

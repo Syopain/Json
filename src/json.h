@@ -45,9 +45,13 @@ namespace pain{
 		const std::string& get_object_key(size_t index) const noexcept;
 		size_t get_object_key_length(size_t index) const noexcept;
 		Json get_object_value(size_t index) const noexcept;
+		long long find_object_index(const std::string &key) const noexcept;
 	private:
 		std::unique_ptr<json::Value> v;
+		friend bool operator==(const Json &lhs, const Json &rhs) noexcept;
+		friend bool operator!=(const Json &lhs, const Json &rhs) noexcept;
 	};
-
+	bool operator==(const Json &lhs, const Json &rhs) noexcept;
+	bool operator!=(const Json &lhs, const Json &rhs) noexcept;
 }
 #endif	//	JSON_H

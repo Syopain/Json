@@ -90,5 +90,16 @@ namespace pain {
 		ret.v.reset(new json::Value(v-> get_object_value(index)));
 		return ret;
 	}
-
+	long long Json::find_object_index(const std::string &key) const noexcept
+	{
+		return v-> find_object_index(key);
+	}
+	bool operator==(const Json &lhs, const Json &rhs) noexcept
+	{
+		return *lhs.v == *rhs.v;
+	}
+   	bool operator!=(const Json &lhs, const Json &rhs) noexcept
+	{
+		return *lhs.v != *rhs.v;
+	}
 }

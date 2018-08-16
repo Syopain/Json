@@ -130,6 +130,15 @@ namespace json {
 			new(&obj_) std::vector<std::pair<std::string, Value>>(obj);
 		}
 	}
+	long long Value::find_object_index(const std::string &key) const noexcept
+	{
+		assert(type_ == json::Object);
+		for(int i = 0; i < obj_.size(); ++i) {
+			if(obj_[i].first == key)
+				return i;
+		}
+		return -1;
+	}
 
 	void Value::parse(const std::string &content)
 	{
@@ -139,6 +148,30 @@ namespace json {
 	void Value::stringify(std::string &content) const noexcept
 	{
 		Generator(*this, content);
+	}
+
+	bool operator==(const Value &lhs, const Value &rhs) noexcept
+	{
+		if (lhs.get_type() != rhs.get_type())
+			return false;
+		switch (lhs.get_type()) {
+			case json::String: return lhs.str_ == rhs.str_;
+			case json::Number: return lhs.num_ == rhs.num_;
+			case json::Array:  return lhs.arr_ == rhs.arr_;
+			case json::Object:
+				if (lhs.get_object_size() != rhs.get_object_size())
+					return false;
+				for (size_t i = 0; i < lhs.get_object_size(); ++i) {
+					auto index = rhs.find_object_index(lhs.get_object_key(i));
+					if(index < 0 || lhs.get_object_value(i) != rhs.get_object_value(index)) return false;
+				}
+				return true;
+		}
+		return true;
+	}
+	bool operator!=(const Value &lhs, const Value &rhs) noexcept
+	{
+		return !(lhs == rhs);
 	}
 
 }
