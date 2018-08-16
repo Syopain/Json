@@ -32,6 +32,9 @@ namespace pain{
 		~Json() noexcept;
 		Json(const Json &rhs) noexcept;
 		Json& operator=(const Json &rhs) noexcept;
+		Json(Json &&rhs) noexcept;
+		Json& operator=(Json &&rhs) noexcept;
+		void swap(Json &rhs) noexcept;
 
 		int get_type() const noexcept;
 		void set_type(json::type t) noexcept;
@@ -53,5 +56,6 @@ namespace pain{
 	};
 	bool operator==(const Json &lhs, const Json &rhs) noexcept;
 	bool operator!=(const Json &lhs, const Json &rhs) noexcept;
+	void swap(Json &lhs, Json &rhs) noexcept;
 }
 #endif	//	JSON_H

@@ -36,10 +36,27 @@ namespace pain {
 	{
 		v.reset(new json::Value(*(rhs.v)));
 	}
-
-	int Json::get_type() const noexcept
-
+	Json::Json(Json &&rhs) noexcept
 	{
+		v.reset(rhs.v.release());
+	}
+	Json& Json::operator=(Json &&rhs) noexcept
+	{
+		v.reset(rhs.v.release());
+	}
+	void Json::swap(Json &rhs) noexcept
+	{
+		using std::swap;
+		swap(v, rhs.v);
+	}
+	void swap(Json &lhs, Json &rhs) noexcept
+	{
+		lhs.swap(rhs);
+	}
+	int Json::get_type() const noexcept
+	{
+		if (v == nullptr)
+			return json::Null;
 		return v-> get_type();
 	}
 	void Json::set_type(json::type t) noexcept

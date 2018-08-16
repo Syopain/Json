@@ -442,10 +442,38 @@ static void test_equal() {
 	TEST_EQUAL("{\"a\":{\"b\":{\"c\":{}}}}", "{\"a\":{\"b\":{\"c\":[]}}}", 0);
 }
 
+static void test_copy() {
+	pain::Json v1, v2;
+	v1.parse("{\"t\":true,\"f\":false,\"n\":null,\"d\":1.5,\"a\":[1,2,3]}");
+	v2 = v1;
+	EXPECT_EQ_BASE(1, int(v2 == v1));
+}
+
+static void test_move() {
+	pain::Json v1, v2, v3;
+	v1.parse("{\"t\":true,\"f\":false,\"n\":null,\"d\":1.5,\"a\":[1,2,3]}");
+	v2 = v1;
+	v3 = std::move(v2);
+	EXPECT_EQ_BASE(json::Null, v2.get_type());
+	EXPECT_EQ_BASE(1, int(v3 == v1));
+}
+
+static void test_swap() {
+	pain::Json v1, v2;
+	v1.set_string("Hello");
+	v2.set_string("World!");
+	pain::swap(v1, v2);
+	EXPECT_EQ_BASE("World!", v1.get_string());
+	EXPECT_EQ_BASE("Hello",  v2.get_string());
+}
+
 int main() {
 	test_parse();
 	test_stringify();
 	test_equal();
+	test_copy();
+	test_move();
+	test_swap();
 	printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }
