@@ -11,3 +11,4 @@
 1.  符合标准的JSON解析器和生成器
 2.  仅支持UTF-8 JSON文本
 3.	仅支持以 `double` 存储 JSON number 类型
+4.	对象不支持重复键
