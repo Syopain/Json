@@ -100,6 +100,32 @@ namespace json {
 			new(&arr_) std::vector<Value>(arr);
 		}
 	}
+	void Value::pushback_array_element(const Value& val) noexcept
+	{
+		assert(type_ == json::Array);
+		arr_.push_back(val);
+	}
+    void Value::popback_array_element() noexcept
+	{
+		assert(type_ == json::Array);
+		arr_.pop_back();
+	}
+	void Value::insert_array_element(const Value &val, size_t index) noexcept
+	{
+		assert(type_ == json::Array);
+		arr_.insert(arr_.begin()+index, val);
+	}
+	void Value::erase_array_element(size_t index, size_t count) noexcept
+	{
+		assert(type_ == json::Array);
+		arr_.erase(arr_.begin()+index, arr_.begin()+index+count);
+	}
+	void Value::clear_array() noexcept
+	{
+		assert(type_ == json::Array);
+		arr_.clear();
+	}
+
 	size_t Value::get_object_size() const noexcept
 	{
 		assert(type_ == json::Object);
@@ -120,6 +146,14 @@ namespace json {
 		assert(type_ == json::Object);
 		return obj_[index].second;
 	}
+	void Value::set_object_value(const std::string &key, const Value &val) noexcept
+	{
+		assert(type_ == json::Object);
+		auto index = find_object_index(key);
+		if (index >= 0) obj_[index].second = val;
+		else obj_.push_back(make_pair(key, val));
+	}
+
 	void Value::set_object(const std::vector<std::pair<std::string, Value>> &obj) noexcept
 	{
 		if(type_ == json::Object)
@@ -139,6 +173,16 @@ namespace json {
 		}
 		return -1;
 	}
+	void Value::remove_object_value(size_t index) noexcept
+	{
+		assert(type_ == json::Object);
+		obj_.erase(obj_.begin()+index, obj_.begin()+index+1);
+	}
+	void Value::clear_object() noexcept
+	{
+		assert(type_ == json::Object);
+		obj_.clear();
+	}
 
 	void Value::parse(const std::string &content)
 	{
@@ -152,9 +196,9 @@ namespace json {
 
 	bool operator==(const Value &lhs, const Value &rhs) noexcept
 	{
-		if (lhs.get_type() != rhs.get_type())
+		if (lhs.type_ != rhs.type_)
 			return false;
-		switch (lhs.get_type()) {
+		switch (lhs.type_) {
 			case json::String: return lhs.str_ == rhs.str_;
 			case json::Number: return lhs.num_ == rhs.num_;
 			case json::Array:  return lhs.arr_ == rhs.arr_;

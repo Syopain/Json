@@ -21,7 +21,7 @@ static std::string status;
 #define TEST_LITERAL(expect, content)\
 	do {\
 		pain::Json v;\
-		v.set_type(json::False);\
+		v.set_boolean(false);\
 		v.parse(content, status);\
 		EXPECT_EQ_BASE("parse ok", status);\
 		EXPECT_EQ_BASE(expect, v.get_type());\
@@ -467,6 +467,160 @@ static void test_swap() {
 	EXPECT_EQ_BASE("Hello",  v2.get_string());
 }
 
+static void test_access_null()
+{
+	pain::Json v;
+	v.set_string("a");
+	v.set_null();
+	EXPECT_EQ_BASE(json::Null, v.get_type());
+}
+
+static void test_access_boolean()
+{
+	pain::Json v;
+	v.set_string("a");
+	v.set_boolean(false);
+	EXPECT_EQ_BASE(json::False, v.get_type());
+}
+
+static void test_access_number()
+{
+	pain::Json v;
+	v.set_string("a");
+	v.set_number(1234.5);
+	EXPECT_EQ_BASE(1234.5, v.get_number());
+}
+
+static void test_access_string()
+{
+	pain::Json v;
+	v.set_string("");
+	EXPECT_EQ_STRING("", v.get_string());
+	v.set_string("Hello");
+	EXPECT_EQ_STRING("Hello", v.get_string());
+}
+
+static void test_access_array()
+{
+	pain::Json a, e;
+	
+	for (size_t j = 0; j < 5; j += 5) {
+		a.set_array();
+		EXPECT_EQ_BASE(0, a.get_array_size());
+		for (int i = 0; i < 10; ++i){
+			e.set_number(i);
+			a.pushback_array_element(e);
+		}
+
+		EXPECT_EQ_BASE(10, a.get_array_size());
+		for (int i = 0; i < 10; ++i)
+			EXPECT_EQ_BASE(static_cast<double>(i), a.get_array_element(i).get_number());
+	}
+
+	a.popback_array_element();
+	EXPECT_EQ_BASE(9, a.get_array_size());
+	for (int i = 0; i < 9; ++i)
+		EXPECT_EQ_BASE(static_cast<double>(i), a.get_array_element(i).get_number());
+
+	a.erase_array_element(4, 0);
+	EXPECT_EQ_BASE(9, a.get_array_size());
+	for (int i = 0; i < 9; ++i)
+	   	EXPECT_EQ_BASE(static_cast<double>(i), a.get_array_element(i).get_number());
+	
+	a.erase_array_element(8, 1);
+	EXPECT_EQ_BASE(8, a.get_array_size());
+	for (int i = 0; i < 8; ++i)
+	   	EXPECT_EQ_BASE(static_cast<double>(i), a.get_array_element(i).get_number());
+
+	a.erase_array_element(0, 2);
+	EXPECT_EQ_BASE(6, a.get_array_size());
+	for (int i = 0; i < 6; ++i)
+	   	EXPECT_EQ_BASE(static_cast<double>(i)+2, a.get_array_element(i).get_number());
+
+	for (int i = 0; i < 2; ++i) {
+		e.set_number(i);
+		a.insert_array_element(e, i);
+	}
+
+	EXPECT_EQ_BASE(8, a.get_array_size());
+	for (int i = 0; i < 8; ++i) {
+	   	EXPECT_EQ_BASE(static_cast<double>(i), a.get_array_element(i).get_number());
+	}
+
+	e.set_string("Hello");
+	a.pushback_array_element(e);
+
+	a.clear_array();
+	EXPECT_EQ_BASE(0, a.get_array_size());
+}
+
+static void test_access_object()
+{
+	pain::Json o, v;
+
+	for (int j = 0; j <= 5; j += 5) {
+		o.set_object();
+		EXPECT_EQ_BASE(0, o.get_object_size());	
+		for (int i = 0; i < 10; ++i) {
+			std::string key = "a";
+			key[0] += i;
+			v.set_number(i);
+			o.set_object_value(key, v);
+		}
+		EXPECT_EQ_BASE(10, o.get_object_size());
+		for (int i = 0; i < 10; ++i) {
+			std::string key = "a";
+			key[0] += i;
+			auto index = o.find_object_index(key);
+			EXPECT_EQ_BASE(1, static_cast<int>(index >= 0));
+			v = o.get_object_value(index);
+			EXPECT_EQ_BASE(static_cast<double>(i), v.get_number());
+		}
+	}
+
+	auto index = o.find_object_index("j");
+	EXPECT_EQ_BASE(1, static_cast<int>(index >= 0));
+	o.remove_object_value(index);
+	index = o.find_object_index("j");
+	EXPECT_EQ_BASE(1, static_cast<int>(index < 0));
+	EXPECT_EQ_BASE(9, o.get_object_size());
+
+	index = o.find_object_index("a");
+	EXPECT_EQ_BASE(1, static_cast<int>(index >= 0));
+	o.remove_object_value(index);
+	index = o.find_object_index("a");
+	EXPECT_EQ_BASE(1, static_cast<int>(index < 0));
+	EXPECT_EQ_BASE(8, o.get_object_size());
+
+	for (int i = 0; i < 8; i++) {
+		std::string key = "a";
+		key[0] += i + 1;
+		EXPECT_EQ_BASE((double)i + 1, o.get_object_value(o.find_object_index(key)).get_number());
+	}
+
+	v.set_string("Hello");
+	o.set_object_value("World", v);
+
+	index = o.find_object_index("World");
+	EXPECT_EQ_BASE(1, static_cast<int>(index >= 0));
+	v = o.get_object_value(index);
+	EXPECT_EQ_STRING("Hello", v.get_string());
+
+	o.clear_object();
+	EXPECT_EQ_BASE(0, o.get_object_size());
+
+}
+
+static void test_access()
+{
+	test_access_null();
+	test_access_boolean();
+	test_access_number();
+	test_access_string();
+	test_access_array();
+	test_access_object();
+}
+
 int main() {
 	test_parse();
 	test_stringify();
@@ -474,6 +628,7 @@ int main() {
 	test_copy();
 	test_move();
 	test_swap();
+	test_access();
 	printf("%d/%d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }

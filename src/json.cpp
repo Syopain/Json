@@ -59,9 +59,14 @@ namespace pain {
 			return json::Null;
 		return v-> get_type();
 	}
-	void Json::set_type(json::type t) noexcept
+	void Json::set_null() noexcept
 	{
-		v-> set_type(t);
+		v->set_type(json::Null);
+	}
+	void Json::set_boolean(bool b) noexcept
+	{
+		if(b) v->set_type(json::True);
+		else v->set_type(json::False);
 	}
 	double Json::get_number() const noexcept
 	{
@@ -83,11 +88,40 @@ namespace pain {
 	{
 		return v-> get_array_size();
 	}
-	const Json Json::get_array_element(size_t index) const noexcept
+	Json Json::get_array_element(size_t index) const noexcept
 	{
 		Json ret;
 		ret.v.reset(new json::Value(v-> get_array_element(index)));
 		return ret;
+	}
+	void Json::set_array() noexcept
+	{
+		v-> set_array(std::vector<json::Value>{});
+	}
+	void Json::pushback_array_element(const Json& val) noexcept
+	{
+		v-> pushback_array_element(*val.v);
+	}
+	void Json::popback_array_element() noexcept
+	{
+		v-> popback_array_element();
+	}
+	void Json::insert_array_element(const Json &val, size_t index) noexcept
+	{
+		v-> insert_array_element(*val.v, index);
+	}
+	void Json::erase_array_element(size_t index, size_t count) noexcept
+	{
+		v-> erase_array_element(index, count);
+	}
+	void Json::clear_array() noexcept
+	{
+		v-> clear_array();
+	}
+
+	void Json::set_object() noexcept
+	{
+		v-> set_object(std::vector<std::pair<std::string, json::Value>>{});
 	}
 	size_t Json::get_object_size() const noexcept
 	{
@@ -107,10 +141,23 @@ namespace pain {
 		ret.v.reset(new json::Value(v-> get_object_value(index)));
 		return ret;
 	}
+	void Json::set_object_value(const std::string &key, const Json &val) noexcept
+	{
+		v-> set_object_value(key, *val.v);
+	}
 	long long Json::find_object_index(const std::string &key) const noexcept
 	{
 		return v-> find_object_index(key);
 	}
+	void Json::remove_object_value(size_t index) noexcept
+	{
+		v-> remove_object_value(index);
+	}
+	void Json::clear_object() noexcept
+	{
+		v-> clear_object();
+	}
+
 	bool operator==(const Json &lhs, const Json &rhs) noexcept
 	{
 		return *lhs.v == *rhs.v;
