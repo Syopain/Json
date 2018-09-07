@@ -6,7 +6,7 @@
 
 namespace json {
 	
-	class Parser{
+	class Parser final{
 	public:
 		Parser(Value &val, const std::string &content);
 	private:

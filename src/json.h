@@ -22,7 +22,7 @@ namespace json {
 
 namespace pain{
 
-	class Json{
+	class Json final{
 	public:
 		void parse(const std::string &content, std::string &status) noexcept;
 		void parse(const std::string &content);

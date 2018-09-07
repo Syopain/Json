@@ -6,7 +6,7 @@
 
 namespace json {
 
-	class Generator{
+	class Generator final{
 	public:
 		Generator(const Value& val, std::string &result);
 	private:

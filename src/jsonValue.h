@@ -8,7 +8,7 @@
 
 namespace json {
 
-	class Value{
+	class Value final{
 	public:
 		void parse(const std::string &content);
 		void stringify(std::string &content) const noexcept;
