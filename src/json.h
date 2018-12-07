@@ -74,4 +74,5 @@ namespace pain{
 	bool operator!=(const Json &lhs, const Json &rhs) noexcept;
 	void swap(Json &lhs, Json &rhs) noexcept;
 }
+
 #endif	//	JSON_H
