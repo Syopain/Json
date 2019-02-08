@@ -6,9 +6,9 @@
 -	跨平台/编译器
 -	使用现代C++、STL，不依赖第三方库
 
-### Feature:
+### 特性:
 
-1.  符合标准的JSON解析器和生成器
-2.  仅支持UTF-8 JSON文本
-3.	仅支持以 `double` 存储 JSON number 类型
-4.	对象不支持重复键
+-.  符合标准的JSON解析器和生成器
+-.  仅支持UTF-8 JSON文本
+-.	仅支持以 `double` 存储 JSON `number` 类型
+-.	对象不支持重复键
