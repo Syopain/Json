@@ -26,13 +26,6 @@
 ```
 JSON的数据类型声明为一个枚举类型:
 ```
-enum type : int{
-    Null,
-    True,
-    False,
-    Number,
-    String,
-    Array,
-    Object
-};
+enum type : int{ Null, True, False, Number, String, Array, Object};
 ```
+### 待补充。。。
