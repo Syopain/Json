@@ -24,11 +24,11 @@ namespace json {
 		switch (type_) {
 			case json::Number: num_ = rhs.num_;
 				break;
-			case json::String: new(&str_) std::string(rhs.str_);
+			case json::String: str_ = std::string(rhs.str_);
 				break;
-			case json::Array:  new(&arr_) std::vector<Value>(rhs.arr_);
+			case json::Array:  arr_ = std::vector<Value>(rhs.arr_);
 				break;
-			case json::Object: new(&obj_) std::vector<std::pair<std::string, Value>>(rhs.obj_);
+			case json::Object: obj_ = std::vector<std::pair<std::string, Value>>(rhs.obj_);
 				break;
 		}
 	}
