@@ -83,4 +83,69 @@ void Parser::parse_value()
 	}
 }
 ```
+#### JSON对象的各类型表示
+一个值不可能同时为多种类型，所以可以使用`union`来节省内存。由于`bool`类型足够简单，可以把`bool`的两个值`true`和`false`视为两个单独的类型来处理，所以无需在`union`中声明`bool`类型。C++的早期版本规定，在`union`中不能含有定义了构造函数或拷贝控制成员的类类型成员（如本例中的`string`和`vector`）。C++11标准取消了这一限制。不过，如果`union`的成员类型定义了自己的构造函数或拷贝控制成员，则该`union`的用法要比只含有内置类型的`union`更复杂。
+```
+namespace json {
+	enum type : int{
+		Null,
+		True,
+		False,
+		Number,
+		String,
+		Array,
+		Object
+	};
+}
+class Value {
+	json::type type_ = json::Null;
+	union {
+		double num_;
+		std::string str_;
+		std::vector<Value> arr_;
+		std::vector<std::pair<std::string, Value>> obj_;
+	};
+};
+```
+#### 使用类管理union成员
+> 对于union来说，要想构造或销毁类类型的成员必须执行非常复杂的操作，因此我们通常把含有类类型成员的union内嵌在另一个类当中。这个类可以管理并控制与union的类类型成员有关的状态转换。
+> 为了追踪union中到底存储了什么类型的值，我们通常会定义一个独立的对象，该对象称为union的判别式（discriminant）。我们可以使用判别式来辨认union存储的值。
+
+我们使用`Value`类来管理union成员，我们将判别式`type_`也作为Value的成员，我们将判别式定义为JSON数据类型的枚举类型来追踪其`union`成员的状态。在我们的类中定义了一些函数，这些函数可以将`union`的某种类型的值赋给`union`成员以及销毁`union`的值：
+```
+class Value {
+	void init(const Value &rhs);
+	void free();
+	void set_type(type t);
+	void set_number(double d);
+	void set_string(const std::string& str);
+	void set_array(const std::vector<Value> &arr);
+	void set_object(const std::vector<std::pair<std::string, Value>> &obj);
+
+	json::type type_ = json::Null;
+	union {
+		double num_;
+		std::string str_;
+		std::vector<Value> arr_;
+		std::vector<std::pair<std::string, Value>> obj_;
+	};
+};
+```
+#### 管理判别式并销毁类类型成员
+因为我们的`union`含有定义了析构函数的成员，所以必须为`union`也定义一个析构函数以销毁类类型成员。和普通的类类型成员不一样，作为`union`组成部分的类成员无法自动销毁。因为析构函数不清楚`union`存储的值是什么类型，所以它无法确定应该销毁哪个成员。我们的析构函数首先检查被销毁的对象中是否存储着类类型，如果是，则类的析构函数显式地调用相应的析构函数释放该类型使用的内存;反之，如果`union`存储的值是内置类型，则类的析构函数什么也不做。
+```
+	void Value::free()		//析构函数调用该函数
+	{
+		using std::string;
+		switch (type_) {
+			case json::String: str_.~string();		//显式调用相应析构函数
+				break;
+			case json::Array:  arr_.~vector<Value>();
+				break;
+			case json::Object: obj_.~vector<std::pair<std::string, Value>>();
+				break;
+		}
+	}
+```
+
 ### 待补充。。。
