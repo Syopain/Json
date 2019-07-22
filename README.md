@@ -145,7 +145,7 @@ class Value {
         }
     }
 ```
-##### 解析数字
+#### 解析数字
 从 JSON 数字的语法：
 ```
 number = [ "-" ] int [ frac ] [ exp ]
