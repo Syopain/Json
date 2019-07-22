@@ -1,13 +1,11 @@
 ## 轻量级Json库
 
 ### 依赖：
-
 - C++ 11
 - 跨平台/编译器
 - 使用现代C++、STL，不依赖第三方库
 
 ### 特性:
-
 - 符合标准的JSON解析器和生成器
 - 仅支持UTF-8 JSON文本
 - 仅支持以 `double` 存储 JSON `number` 类型
@@ -17,7 +15,7 @@
 
 #### 头文件和API设计
 为降低文件间的编译依赖关系，把接口从从实现中分离，`Json`类只提供接口，`Value`类负责实现该接口，`Json`类通过一个`std::unique_ptr`实现对`Value`的访问。
-</br>  
+</br>
 解析一个JSON字符串的一般用法是：
 ```
     Json json;
@@ -51,40 +49,8 @@ enum type : int{ Null, True, False, Number, String, Array, Object};
 ```
 #define EXPECT_EQ_STRING(expect, actual) EXPECT_EQ_BASE(0, memcmp(expect, actual.c_str(), actual.size()));
 ```
-#### 实现解析器
-解析器封装在`Parser`类中，`Parser`类有两个成员变量，分别是解析后所得的Json对象引用`val_`和一个指向json字符串当前解析位置的`char`指针`cur_`。解析在`Parser`的构造函数中进行：
-```
-Parser::Parser(Value &val, const std::string &content)
-    : val_(val), cur_(content.c_str())
-{
-    val_.set_type(json::Null);
-    parse_whitespace(); //跳过空字符
-    parse_value();      
-    parse_whitespace();
-    if(*cur_ != '\0'){
-        val_.set_type(json::Null);
-        throw(Exception("parse root not singular"));
-    }
-}
-```
-若解析失败，`Parser`会把`val`设为`null`类型，所以先把它设为`null`，让`parse_value()`写入解析出来的值。由于JSON语法的类型简单，只需要检测首个字符便可知道它是哪个类型的值，然后调用相关类型的解析：
-```
-void Parser::parse_value()
-{
-    switch (*cur_) {
-        case 'n' : parse_literal("null", json::Null);  return;
-        case 't' : parse_literal("true", json::True);  return;
-        case 'f' : parse_literal("false", json::False); return;
-        case '\"': parse_string(); return;
-        case '[' : parse_array();  return;
-        case '{' : parse_object(); return;
-        default  : parse_number(); return; 
-        case '\0': throw(Exception("parse expect value"));
-    }
-}
-```
 #### JSON对象的各类型表示
-一个值不可能同时为多种类型，所以可以使用`union`来节省内存。由于`bool`类型足够简单，可以把`bool`的两个值`true`和`false`视为两个单独的类型来处理，所以无需在`union`中声明`bool`类型。C++的早期版本规定，在`union`中不能含有定义了构造函数或拷贝控制成员的类类型成员（如本例中的`string`和`vector`）。C++11标准取消了这一限制。不过，如果`union`的成员类型定义了自己的构造函数或拷贝控制成员，则该`union`的用法要比只含有内置类型的`union`更复杂。
+一个值不可能同时为多种类型，所以可以使用`union`(C++17可使用std::variant代替union)来节省内存。由于`bool`类型足够简单，可以把`bool`的两个值`true`和`false`视为两个单独的类型来处理，所以无需在`union`中声明`bool`类型。C++的早期版本规定，在`union`中不能含有定义了构造函数或拷贝控制成员的类类型成员（如本例中的`string`和`vector`）。C++11标准取消了这一限制。不过，如果`union`的成员类型定义了自己的构造函数或拷贝控制成员，则该`union`的用法要比只含有内置类型的`union`更复杂。
 ```
 namespace json {
     enum type : int{
@@ -107,7 +73,7 @@ class Value {
     };
 };
 ```
-#### 使用类管理union成员
+##### 使用类管理union成员
 > 对于union来说，要想构造或销毁类类型的成员必须执行非常复杂的操作，因此我们通常把含有类类型成员的union内嵌在另一个类当中。这个类可以管理并控制与union的类类型成员有关的状态转换。
 > 为了追踪union中到底存储了什么类型的值，我们通常会定义一个独立的对象，该对象称为union的判别式（discriminant）。我们可以使用判别式来辨认union存储的值。
 
@@ -131,7 +97,7 @@ class Value {
     };
 };
 ```
-#### 管理判别式并销毁类类型成员
+##### 管理判别式并销毁类类型成员
 因为我们的`union`含有定义了析构函数的成员，所以必须为`union`也定义一个析构函数以销毁类类型成员。和普通的类类型成员不一样，作为`union`组成部分的类成员无法自动销毁。因为析构函数不清楚`union`存储的值是什么类型，所以它无法确定应该销毁哪个成员。我们的析构函数首先检查被销毁的对象中是否存储着类类型，如果是，则类的析构函数显式地调用相应的析构函数释放该类型使用的内存;反之，如果`union`存储的值是内置类型，则类的析构函数什么也不做。
 ```
     void Value::free()      //析构函数调用该函数
@@ -147,5 +113,46 @@ class Value {
         }
     }
 ```
+#### 实现解析器
+解析器封装在`Parser`类中，`Parser`类有两个成员变量，分别是解析后所得的Json对象引用`val_`和一个指向json字符串当前解析位置的`char`指针`cur_`。解析在`Parser`的构造函数中进行：
+```
+    Parser::Parser(Value &val, const std::string &content)
+        : val_(val), cur_(content.c_str())
+    {
+        val_.set_type(json::Null);
+        parse_whitespace(); //跳过空字符
+        parse_value();
+        parse_whitespace();
+        if(*cur_ != '\0'){
+            val_.set_type(json::Null);
+            throw(Exception("parse root not singular"));
+        }
+    }
+```
+若解析失败，`Parser`会把`val`设为`null`类型，所以先把它设为`null`，让`parse_value()`写入解析出来的值。由于JSON语法的类型简单，只需要检测首个字符便可知道它是哪个类型的值，然后调用相关类型的解析：
+```
+    void Parser::parse_value()
+    {
+        switch (*cur_) {
+            case 'n' : parse_literal("null", json::Null);  return;
+            case 't' : parse_literal("true", json::True);  return;
+            case 'f' : parse_literal("false", json::False); return;
+            case '\"': parse_string(); return;
+            case '[' : parse_array();  return;
+            case '{' : parse_object(); return;
+            default  : parse_number(); return;
+            case '\0': throw(Exception("parse expect value"));
+        }
+    }
+```
+##### 解析数字
+从 JSON 数字的语法：
+```
+number = [ "-" ] int [ frac ] [ exp ]
+int = "0" / digit1-9 *digit
+frac = "." 1*digit
+exp = ("e" / "E") ["-" / "+"] 1*digit
+```
+我们可能直观地会认为它应该表示为一个浮点数（floating point number），为了简单起见，我们仅使用`double`表示JSON number 类型，我们只需要进行简单的格式校验，然后使用标准库的`strtod()`将字符串转换为`double`类型。
 
 ### 待补充。。。
