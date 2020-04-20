@@ -35,6 +35,7 @@ namespace pain {
 	Json& Json::operator=(const Json &rhs) noexcept
 	{
 		v.reset(new json::Value(*(rhs.v)));
+		return *this;
 	}
 	Json::Json(Json &&rhs) noexcept
 	{
@@ -43,6 +44,7 @@ namespace pain {
 	Json& Json::operator=(Json &&rhs) noexcept
 	{
 		v.reset(rhs.v.release());
+		return *this;
 	}
 	void Json::swap(Json &rhs) noexcept
 	{
