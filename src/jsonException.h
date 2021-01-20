@@ -4,12 +4,16 @@
 #include <string>
 #include <stdexcept>
 
-namespace json{
+namespace syo {
 
-	class Exception final : public std::logic_error{
-	public:
-		Exception(const std::string &errMsg) : logic_error(errMsg) { }
-	};
+    namespace json{
+
+        class Exception final : public std::logic_error{
+        public:
+            Exception(const std::string &errMsg) : logic_error(errMsg) { }
+        };
+
+    }
 
 }
 

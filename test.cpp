@@ -7,6 +7,8 @@ static int test_count = 0;
 static int test_pass = 0;
 static std::string status;
 
+using namespace syo;
+
 #define EXPECT_EQ_BASE(expect, actual) \
 	do {\
 		++test_count;\
@@ -20,7 +22,7 @@ static std::string status;
 
 #define TEST_LITERAL(expect, content)\
 	do {\
-		pain::Json v;\
+        syo::Json v;\
 		v.set_boolean(false);\
 		v.parse(content, status);\
 		EXPECT_EQ_BASE("parse ok", status);\
@@ -36,7 +38,7 @@ static void test_parse_literal()
 
 #define TEST_NUMBER(expect, content)\
 	do {\
-		pain::Json j;\
+        syo::Json j;\
 		j.parse(content, status);\
 		EXPECT_EQ_BASE("parse ok", status);\
 		EXPECT_EQ_BASE(json::Number, j.get_type());\
@@ -68,7 +70,7 @@ static void test_parse_number()
 
 #define TEST_STRING(expect, content)\
 	do {\
-		pain::Json v;\
+        syo::Json v;\
 		v.parse(content, status);\
 		EXPECT_EQ_BASE("parse ok", status);\
 		EXPECT_EQ_BASE(json::String, v.get_type());\
@@ -96,7 +98,7 @@ static void test_parse_string()
 
 static void test_parse_array()
 {
-	pain::Json v;
+    syo::Json v;
 
 	v.parse("[ ]", status);
 	EXPECT_EQ_BASE("parse ok", status);
@@ -120,11 +122,11 @@ static void test_parse_array()
 	EXPECT_EQ_BASE(json::Array, v.get_type());
 	EXPECT_EQ_BASE(4, v.get_array_size());
 	for(int i = 0; i < 4; ++i) {
-		pain::Json a = v.get_array_element(i);
+        syo::Json a = v.get_array_element(i);
 		EXPECT_EQ_BASE(json::Array, a.get_type());
 		EXPECT_EQ_BASE(i, a.get_array_size());
 		for(int j = 0; j < i; ++j) {
-			pain::Json e = a.get_array_element(j);
+            syo::Json e = a.get_array_element(j);
 			EXPECT_EQ_BASE(json::Number, e.get_type());
 			EXPECT_EQ_BASE((double)j, e.get_number());
 		
@@ -134,14 +136,14 @@ static void test_parse_array()
 
 static void test_parse_object()
 {
-	pain::Json v;
+    syo::Json v;
 
 	v.parse(" { } ", status);
 	EXPECT_EQ_BASE("parse ok", status);
 	EXPECT_EQ_BASE(json::Object, v.get_type());
 	EXPECT_EQ_BASE(0, v.get_object_size());
 
-	v.parse(" { "
+    v.parse(" { "
 	        "\"n\" : null , "
 	        "\"f\" : false , "
 	        "\"t\" : true , "
@@ -168,16 +170,16 @@ static void test_parse_object()
 	EXPECT_EQ_BASE(json::Array, v.get_object_value(5).get_type());
 	EXPECT_EQ_BASE(3, v.get_object_value(5).get_array_size());
 	for (int i = 0; i < 3; ++i) {
-		pain::Json e = v.get_object_value(5).get_array_element(i);
+        syo::Json e = v.get_object_value(5).get_array_element(i);
 		EXPECT_EQ_BASE(json::Number, e.get_type());
 		EXPECT_EQ_BASE(i + 1.0, e.get_number());
 	}
 	EXPECT_EQ_BASE("o", v.get_object_key(6));
 	{
-		pain::Json o = v.get_object_value(6);
+        syo::Json o = v.get_object_value(6);
 		EXPECT_EQ_BASE(json::Object, o.get_type());
 		for(int i = 0; i < 3; ++i) {
-			pain::Json ov = o.get_object_value(i);
+            syo::Json ov = o.get_object_value(i);
 			EXPECT_EQ_BASE('1' + i, (o.get_object_key(i))[0]);
 			EXPECT_EQ_BASE(1, o.get_object_key_length(i));
 			EXPECT_EQ_BASE(json::Number, ov.get_type());
@@ -190,7 +192,7 @@ static void test_parse_object()
 
 #define TEST_ERROR(error, content) \
 	do {\
-		pain::Json v;\
+        syo::Json v;\
 		v.parse(content, status);\
 		EXPECT_EQ_BASE(error, status);\
 		EXPECT_EQ_BASE((json::Null), v.get_type());\
@@ -348,7 +350,7 @@ static void test_parse() {
 
 #define TEST_ROUNDTRIP(content)\
 	do {\
-		pain::Json v;\
+        syo::Json v;\
 		v.parse(content, status);\
 		EXPECT_EQ_BASE("parse ok", status);\
 		v.stringify(status);\
@@ -408,7 +410,7 @@ static void test_stringify() {
 
 #define TEST_EQUAL(json1, json2, equality)\
 	do {\
-		pain::Json v1, v2;\
+        syo::Json v1, v2;\
 		v1.parse(json1, status);\
 		EXPECT_EQ_BASE("parse ok", status);\
 		v2.parse(json2, status);\
@@ -443,14 +445,14 @@ static void test_equal() {
 }
 
 static void test_copy() {
-	pain::Json v1, v2;
+    syo::Json v1, v2;
 	v1.parse("{\"t\":true,\"f\":false,\"n\":null,\"d\":1.5,\"a\":[1,2,3]}");
 	v2 = v1;
 	EXPECT_EQ_BASE(1, int(v2 == v1));
 }
 
 static void test_move() {
-	pain::Json v1, v2, v3;
+    syo::Json v1, v2, v3;
 	v1.parse("{\"t\":true,\"f\":false,\"n\":null,\"d\":1.5,\"a\":[1,2,3]}");
 	v2 = v1;
 	v3 = std::move(v2);
@@ -459,17 +461,17 @@ static void test_move() {
 }
 
 static void test_swap() {
-	pain::Json v1, v2;
+    syo::Json v1, v2;
 	v1.set_string("Hello");
 	v2.set_string("World!");
-	pain::swap(v1, v2);
+    syo::swap(v1, v2);
 	EXPECT_EQ_BASE("World!", v1.get_string());
 	EXPECT_EQ_BASE("Hello",  v2.get_string());
 }
 
 static void test_access_null()
 {
-	pain::Json v;
+    syo::Json v;
 	v.set_string("a");
 	v.set_null();
 	EXPECT_EQ_BASE(json::Null, v.get_type());
@@ -477,7 +479,7 @@ static void test_access_null()
 
 static void test_access_boolean()
 {
-	pain::Json v;
+    syo::Json v;
 	v.set_string("a");
 	v.set_boolean(false);
 	EXPECT_EQ_BASE(json::False, v.get_type());
@@ -485,7 +487,7 @@ static void test_access_boolean()
 
 static void test_access_number()
 {
-	pain::Json v;
+    syo::Json v;
 	v.set_string("a");
 	v.set_number(1234.5);
 	EXPECT_EQ_BASE(1234.5, v.get_number());
@@ -493,7 +495,7 @@ static void test_access_number()
 
 static void test_access_string()
 {
-	pain::Json v;
+    syo::Json v;
 	v.set_string("");
 	EXPECT_EQ_STRING("", v.get_string());
 	v.set_string("Hello");
@@ -502,7 +504,7 @@ static void test_access_string()
 
 static void test_access_array()
 {
-	pain::Json a, e;
+    syo::Json a, e;
 	
 	for (size_t j = 0; j < 5; j += 5) {
 		a.set_array();
@@ -556,7 +558,7 @@ static void test_access_array()
 
 static void test_access_object()
 {
-	pain::Json o, v;
+    syo::Json o, v;
 
 	for (int j = 0; j <= 5; j += 5) {
 		o.set_object();
